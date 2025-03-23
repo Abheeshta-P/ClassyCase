@@ -1,3 +1,3 @@
-import MaxWidthWrapper from "./MaxWidthWrapper";
+import MaxWidthWrapper from "./layouts/MaxWidthWrapper";
 
 export { MaxWidthWrapper }
