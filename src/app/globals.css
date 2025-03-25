@@ -120,3 +120,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+::selection{
+  color: white;
+  background-color: #00a63e;
+}
+
+img{
+  pointer-events: none;
+}
