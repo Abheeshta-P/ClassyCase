@@ -1,5 +1,5 @@
 import { MaxWidthWrapper } from "@/components";
-import { Check } from "lucide-react";
+import { Check, Star } from "lucide-react";
 
 export default function Home() {
   return (
@@ -32,8 +32,32 @@ export default function Home() {
                     Modern iPhone models supported
                   </li>
               </ul>
+
+              <div className="mt-12 flex flex-col sm:flex-row items-center  gap-5">
+                {/* image user faces */}
+                <div className="flex -space-x-4">
+                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-slate-200" src="/users/user-1.png" alt="user-1 image" />
+                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-slate-100" src="/users/user-2.png" alt="user-2 image" />
+                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-slate-100" src="/users/user-3.png" alt="user-3 image" />
+                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-slate-100" src="/users/user-4.jpg" alt="user-4 image" />
+                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-slate-100 object-cover" src="/users/user-5.jpg" alt="user-5 image" />
+                </div>
+                <div className="flex flex-col justify-between items-center sm:items-start">
+                  {/* stars */}
+                  <div className="flex gap-0.5">
+                    <Star className='h-4 w-4 text-green-600 fill-green-600' />
+                    <Star className='h-4 w-4 text-green-600 fill-green-600' />
+                    <Star className='h-4 w-4 text-green-600 fill-green-600' />
+                    <Star className='h-4 w-4 text-green-600 fill-green-600' />
+                    <Star className='h-4 w-4 text-green-600 fill-green-600' />
+                  </div>
+                  <p>
+                    <span className='font-semibold'>1.250</span> happy customers
+                  </p>
+                </div>
+              </div>
+
             </div>
-            
           </div>
         </MaxWidthWrapper>
       </section>
