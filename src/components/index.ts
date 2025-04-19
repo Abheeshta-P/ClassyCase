@@ -1,3 +1,3 @@
 import MaxWidthWrapper from "./layouts/MaxWidthWrapper";
-
-export { MaxWidthWrapper }
+import Phone from "./atoms/Phone";
+export { MaxWidthWrapper, Phone }
