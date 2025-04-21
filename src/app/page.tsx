@@ -1,9 +1,11 @@
-import { MaxWidthWrapper,Phone } from "@/components";
+import { MaxWidthWrapper,Navbar,Phone } from "@/components";
 import { Check, Star } from "lucide-react";
 
 export default function Home() {
   return (
-    <main className="bg-slate-50 w-full min-h-screen">
+    <>
+      <Navbar/>
+      <main className="bg-slate-50 w-full min-h-screen grainy-light">
       <section>
         <MaxWidthWrapper className="pb-24 pt-10 lg:grid lg:grid-cols-3 sm:pb-32 lg:gap-x-0 xl:gap-x-8 lg:pt-24 xl:pt-32 lg:pb-52">
           <div className="col-span-2 px:6 lg:px-0 lg:pb-4">
@@ -63,17 +65,18 @@ export default function Home() {
             <div className='relative md:max-w-xl'>
               <img
                 src='/images/your-image.png'
-                className='absolute w-40 lg:w-52 left-46 -top-20 select-none hidden sm:block lg:hidden xl:block'
+                className='absolute w-40 lg:w-52 left-50 xl:left-46 -top-20 select-none hidden sm:block lg:hidden xl:block'
               />
               <img
                 src='/images/line.png'
                 className='absolute w-20 -left-6 -bottom-6 select-none'
               />
-              <Phone className='w-64' imgSrc='/testimonials/1.jpg' />
+              <Phone className='w-64' imgSrc='/testimonials/2.jpg' />
             </div>
           </div>
         </MaxWidthWrapper>
       </section>
-    </main>
+      </main>
+    </>
   );
 }
