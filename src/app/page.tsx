@@ -1,10 +1,8 @@
-import { MaxWidthWrapper,Navbar,Phone } from "@/components";
+import { MaxWidthWrapper,Phone } from "@/components";
 import { Check, Star } from "lucide-react";
 
 export default function Home() {
   return (
-    <>
-      <Navbar/>
       <main className="bg-slate-50 w-full min-h-screen grainy-light">
       <section>
         <MaxWidthWrapper className="pb-24 pt-10 lg:grid lg:grid-cols-3 sm:pb-32 lg:gap-x-0 xl:gap-x-8 lg:pt-24 xl:pt-32 lg:pb-52">
@@ -15,7 +13,7 @@ export default function Home() {
                 <img src="/images/main.png" alt="Panther as the icon" className="w-full h-full" />
               </div>  
               <h1 className="relative w-fit tracking-tight text-balance mt-16 font-bold !leading-tight text-gray-900 text-5xl md:text-6xl lg:text-7xl">Your Image on a <span className="bg-green-600 px-2 text-white">Custom</span> Phone Case</h1>
-              <p className="mt-8 text-lg lg:pr-10 max-w-prose text-center lg:text-left text-balance md:text-wrap">
+              <p className="mt-8 text-lg lg:pr-10 max-w-[500px] lg:max-w-[700px] text-center lg:text-left text-balance md:text-wrap">
                 Capture your favorite memories with your own, <span className="font-semibold">one-of-one</span> phone case.
                 ClassyCase allows you to protect your memories, not just your phone case.
               </p>
@@ -77,6 +75,5 @@ export default function Home() {
         </MaxWidthWrapper>
       </section>
       </main>
-    </>
   );
 }
