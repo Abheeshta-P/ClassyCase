@@ -1,0 +1,1 @@
+export const ADMIN_EMAIL = String(process.env.NEXT_PUBLIC_ADMIN_EMAIL);
