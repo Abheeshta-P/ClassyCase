@@ -74,6 +74,7 @@ export default function Home() {
           </div>
         </MaxWidthWrapper>
       </section>
-      </main>
+      {/* value proposition section */}
+     </main>
   );
 }
