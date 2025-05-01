@@ -9,10 +9,7 @@
 ## 🚀 Features  
 
 ✅ **Complete E-Commerce Shop**  
-• Full-stack functionality built from scratch in **Next.js 15**  
-• Customers can purchase custom phone cases directly from the platform  
 ✅ **Beautiful Landing Page**  
-✅ **Custom Artworks**  
 ✅ **Admin Dashboard**  
 ✅ **Drag-and-Drop File Uploads**  
 ✅ **Phone Case Configurator**  
@@ -42,4 +39,7 @@ Follow the steps below to set up and run ClassyCase locally.
 ### 1. Clone the Repository  
 ```bash
 git clone https://github.com/yourusername/classycase.git  
-cd classycase  
+cd classycase
+```
+
+> All rights are reserved
