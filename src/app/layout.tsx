@@ -6,7 +6,7 @@ import { Navbar } from "@/components";
 const recursive = Recursive({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "ClassyCase",
+  title: "ClassyCase - Custom high-quality phone cases",
   description: "Shop the custom generated back covers for your phone",
 };
 
