@@ -81,12 +81,12 @@ export default function Home() {
       <section className="bg-slate-100 py-24 grainy-dark">
         <MaxWidthWrapper className="flex flex-col items-center gap-16 sm:gap-32">
           <div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6">
-            <h2 className="text-center order-1 mt-2 tracking-tight text-balance font-bold !leading-tight text-5xl md:text-6xl text-gray-900">
+            <h2 className="text-center order-1 tracking-tight text-balance font-bold !leading-tight text-5xl md:text-6xl text-gray-900">
               What our
               <span className="relative px-3.5">customers <Icons.underline className="hidden sm:block pointer-events-none absolute inset-x-0 -bottom-8 text-green-600"/></span>
               say
             </h2>
-            <img src="/images/main.png" alt="classyCase - BlackPanther" className="w-34" />
+            <img src="/images/main.png" alt="classyCase - BlackPanther" className="w-34 order-0 lg:order-2" />
           </div>
          <div className='mx-auto grid max-w-2xl grid-cols-1 px-4 lg:mx-0 lg:max-w-none lg:grid-cols-2 gap-y-16'>
             {/* first user review */}
