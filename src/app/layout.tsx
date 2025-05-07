@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Recursive } from 'next/font/google'
 import "./globals.css";
 import { Navbar } from "@/components";
+import Footer from "@/components/organisms/Footer";
 
 const recursive = Recursive({ subsets: ['latin'] })
 
@@ -23,8 +24,9 @@ export default function RootLayout({
       <body
         className={recursive.className}
       >
-          <Navbar/>
+        <Navbar/>
           {children}
+        <Footer/>
       </body>
     </html>
   );
