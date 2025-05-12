@@ -19,14 +19,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="shortcut icon" href="favicon.jpeg" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.jpeg" type="image/x-icon" />
       </head>
       <body
         className={recursive.className}
       >
         <Navbar/>
-          {children}
-        <Footer/>
+        <main>
+          <div>
+            {children}
+          </div>
+          <Footer/>
+        </main>
       </body>
     </html>
   );
