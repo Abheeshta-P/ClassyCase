@@ -30,6 +30,7 @@
 | **PostgreSQL**  | Reliable and scalable relational database            |
 | **Kinde Auth**  | Secure authentication and user management            |
 | **shadcn-ui**   | Clean, accessible UI component library               |
+| **zod**   | TypeScript-first schema validation library used in Next.js to validate and type-check data on both the client and server seamlessly.       |
 
 
 ## 📦 Getting Started  

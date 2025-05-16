@@ -6,11 +6,18 @@ import { Progress } from "@/components/ui/progress";
 import { Image, Loader2, MousePointerSquareDashed } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import Dropzone from 'react-dropzone';
+import { useUploadThing } from '@/lib/uploadthing';
 
 function Page() {
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(33)
+
+  const { } = useUploadThing("imageUploader", {
+    onClientUploadComplete: ([data]) => {
+      
+    } 
+  });
 
   // Initial mounting/loading
   const [isPending, startTransition] = useTransition();
