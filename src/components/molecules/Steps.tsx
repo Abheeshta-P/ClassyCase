@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 function Steps() {
   const pathname = usePathname();
   return (
-    <ol className="rounded-md bg-white lg:flex lg:rounded-none lg:border-1 lg:border-r lg:border-gray-200">
+    <ol className="mt-5 rounded-md bg-white lg:flex lg:rounded-none lg:border-1 lg:border-r lg:border-gray-200">
       {
         STEPS.map((step, index) => {
           const isCurrent = pathname.endsWith(step.url);
@@ -17,6 +17,7 @@ function Steps() {
           return (
             <li key={step.name} className='relative overflow-hidden lg:flex-1'>
               <div>
+                {/* Progress bar */}
                 <span
                   className={cn(
                     'absolute left-0 top-0 h-full w-1 bg-zinc-400 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full',
@@ -27,7 +28,8 @@ function Steps() {
                   )}
                   aria-hidden='true'
                 />
-  
+
+                {/* Step container */}
                 <span
                   className={cn(
                     index !== 0 ? 'lg:pl-9' : '',
@@ -36,13 +38,7 @@ function Steps() {
                   <span className='flex-shrink-0'>
                     <img
                       src={imgPath}
-                      className={cn(
-                        'flex h-20 w-20 object-contain items-center justify-center',
-                        {
-                          'border-none': isCompleted,
-                          'border-zinc-700': isCurrent,
-                        }
-                      )}
+                      className={cn('flex h-20 w-20 object-contain items-center justify-center')}
                     />
                   </span>
   
