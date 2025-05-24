@@ -27,6 +27,7 @@ export const ourFileRouter = {
       const { width, height } = imgMetadata;
 
       if (!configId) {
+        // New entry
         const configuration = await db.configuration.create({
           data: {
             imageURL: file.ufsUrl,
@@ -37,6 +38,7 @@ export const ourFileRouter = {
 
         return { configId: configuration.id };
       } else {
+        // Update existing
         const updatedConfiguration = await db.configuration.update({
           where: {
             id: configId,
