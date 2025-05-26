@@ -1,7 +1,6 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { z } from "zod";
 import sharp from "sharp";
-import { buffer } from "stream/consumers";
 import { db } from "@/db";
 
 const f = createUploadthing();

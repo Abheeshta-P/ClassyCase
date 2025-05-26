@@ -13,7 +13,7 @@ async function Page({ searchParams }: PageProps) {
     return notFound();
   }
   return (
-    <div>Page</div>
+    <div>Page : {id}</div>
   )
 }
 
