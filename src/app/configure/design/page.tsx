@@ -9,7 +9,7 @@ interface PageProps {
 }
 
 async function Page({ searchParams }: PageProps) {
-  const { id } = searchParams;
+  const { id } = await searchParams;
 
   if (!id || typeof id !== 'string') {
     return notFound();
@@ -26,7 +26,7 @@ async function Page({ searchParams }: PageProps) {
   const { imageURL, width, height } = configuration;
 
   return (
-    <DesignConfigurator/>
+    <DesignConfigurator configId={configuration.id} imageDimensions={{ width, height }} imgURL={imageURL} />
   )
 }
 
