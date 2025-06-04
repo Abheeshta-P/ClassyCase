@@ -8,8 +8,11 @@ import NextImage from "next/image";
 import { Rnd } from "react-rnd";
 import { Radio, RadioGroup } from '@headlessui/react';
 import { useState } from "react";
-import { COLOR } from "@/validators/option-validator";
+import { COLORS, MODELS } from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 interface DesignConfiguratorProps {
   configId: string
@@ -19,9 +22,11 @@ interface DesignConfiguratorProps {
 
 function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfiguratorProps) {
   const [options, setOptions] = useState<{
-    color: (typeof COLOR)[number]
+    color: (typeof COLORS)[number],
+    model: (typeof MODELS.options)[number]
   }>({
-    color: COLOR[1],
+    color: COLORS[0],
+    model: MODELS.options[0],
   })
 
   return (
@@ -70,7 +75,7 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
 
             <div className='w-full h-px bg-zinc-200 my-6' />
 
-            {/* options */}
+            {/* color options */}
             <div className="relative mt-4 h-full flex flex-col sm:flex-row justify-between">
               <RadioGroup value={options.color}
                 onChange={(val) => {
@@ -82,7 +87,7 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
               >
                 <Label>Color: {options.color.label}</Label>
                 <div className='mt-3 flex items-center space-x-3'>
-                  {COLOR.map((color) => (
+                  {COLORS.map((color) => (
                     <div key={color.label}>
                       <Radio
                         value={color}
@@ -107,6 +112,33 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
                 </div>
               </RadioGroup>
             </div>
+            {/* model options */}
+            <div className="relative flex flex-col gap-3 w-full">
+              <Label>Model</Label>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button
+                    variant={"outline"}
+                    role="combobox"
+                    className="w-full justify-between"
+                  >
+                    {options.model.label}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {MODELS.options.map((model) => (
+                    <DropdownMenuItem key={model.label}>
+                      <Check className={cn("mr-2 h-4 w-4",
+                        model.label === options.model.label? "opacity-100" : "opacity-0")
+                      }/>
+                      {model.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
           </div>
         </ScrollArea>
       </div>
