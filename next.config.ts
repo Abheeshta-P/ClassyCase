@@ -3,7 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ["aoleitrpni.ufs.sh"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "aoleitrpni.ufs.sh",
+      },
+    ],
   },
 };
 

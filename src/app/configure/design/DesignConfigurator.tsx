@@ -75,68 +75,70 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
 
             <div className='w-full h-px bg-zinc-200 my-6' />
 
-            {/* color options */}
             <div className="relative mt-4 h-full flex flex-col sm:flex-row justify-between">
-              <RadioGroup value={options.color}
-                onChange={(val) => {
-                  setOptions((prev) => ({
-                    ...prev,
-                    color: val,
-                  }))
-                }}
-              >
-                <Label>Color: {options.color.label}</Label>
-                <div className='mt-3 flex items-center space-x-3'>
-                  {COLORS.map((color) => (
-                    <div key={color.label}>
-                      <Radio
-                        value={color}
-                        className={({ checked }) =>
-                          cn(
-                            'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 active:ring-0 focus:ring-0 active:outline-none focus:outline-none border-2 border-transparent',
-                            {
-                              [`border-${color.tw}`]: checked,
-                            }
-                          )
-                        }
+              <div className="flex flex-col gap-6">
+                {/* color options */}
+                <RadioGroup value={options.color}
+                  onChange={(val) => {
+                    setOptions((prev) => ({
+                      ...prev,
+                      color: val,
+                    }))
+                  }}
+                >
+                  <Label>Color: {options.color.label}</Label>
+                  <div className='mt-3 flex items-center space-x-3'>
+                    {COLORS.map((color) => (
+                      <div key={color.label}>
+                        <Radio
+                          value={color}
+                          className={({ checked }) =>
+                            cn(
+                              'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 active:ring-0 focus:ring-0 active:outline-none focus:outline-none border-2 border-transparent',
+                              {
+                                [`border-${color.tw}`]: checked,
+                              }
+                            )
+                          }
+                        >
+                          <span
+                            className={cn(
+                              `bg-${color.tw}`,
+                              'h-8 w-8 rounded-full border border-black border-opacity-10'
+                            )}
+                          />
+                        </Radio>
+                      </div>
+                    ))}
+                  </div>
+                </RadioGroup>
+                {/* model options */}
+                <div className="relative flex flex-col gap-3 w-full">
+                  <Label>Model</Label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Button
+                        variant={"outline"}
+                        role="combobox"
+                        className="w-full justify-between"
                       >
-                        <span
-                          className={cn(
-                            `bg-${color.tw}`,
-                            'h-8 w-8 rounded-full border border-black border-opacity-10'
-                          )}
-                        />
-                      </Radio>
-                    </div>
-                  ))}
+                        {options.model.label}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {MODELS.options.map((model) => (
+                        <DropdownMenuItem key={model.label}>
+                          <Check className={cn("mr-2 h-4 w-4",
+                            model.label === options.model.label? "opacity-100" : "opacity-0")
+                          }/>
+                          {model.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-              </RadioGroup>
-            </div>
-            {/* model options */}
-            <div className="relative flex flex-col gap-3 w-full">
-              <Label>Model</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Button
-                    variant={"outline"}
-                    role="combobox"
-                    className="w-full justify-between"
-                  >
-                    {options.model.label}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {MODELS.options.map((model) => (
-                    <DropdownMenuItem key={model.label}>
-                      <Check className={cn("mr-2 h-4 w-4",
-                        model.label === options.model.label? "opacity-100" : "opacity-0")
-                      }/>
-                      {model.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              </div>
             </div>
 
           </div>
