@@ -8,7 +8,7 @@ import NextImage from "next/image";
 import { Rnd } from "react-rnd";
 import { Radio, RadioGroup } from '@headlessui/react';
 import { useState } from "react";
-import { COLORS, MODELS } from "@/validators/option-validator";
+import { COLORS, FINISHES, MATERIALS, MODELS } from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -23,10 +23,14 @@ interface DesignConfiguratorProps {
 function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfiguratorProps) {
   const [options, setOptions] = useState<{
     color: (typeof COLORS)[number],
-    model: (typeof MODELS.options)[number]
+    model: (typeof MODELS.options)[number],
+    material: (typeof MATERIALS.options)[number],
+    finish: (typeof FINISHES.options)[number],
   }>({
     color: COLORS[0],
     model: MODELS.options[0],
+    material: MATERIALS.options[0],
+    finish: FINISHES.options[0],
   })
 
   return (
@@ -63,10 +67,7 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
       </div>
       <div className="h-[37.5rem] flex flex-col bg-white">
         <ScrollArea>
-        <div
-            aria-hidden='true'
-            className='absolute z-10 inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white pointer-events-none'
-          />
+          <div aria-hidden='true' className='absolute z-10 inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white pointer-events-none'/>
 
           <div className='px-8 pb-12 pt-8'>
             <h2 className='tracking-tight font-bold text-3xl'>
@@ -128,7 +129,14 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       {MODELS.options.map((model) => (
-                        <DropdownMenuItem key={model.label}>
+                        <DropdownMenuItem key={model.label} className={
+                          cn("flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100", {
+                              "bg-zinc-100": model.label === options.model.label
+                          })}
+                          onClick={() => {
+                            setOptions((prev) => ({ ...prev, model }))
+                          }}
+                        >
                           <Check className={cn("mr-2 h-4 w-4",
                             model.label === options.model.label? "opacity-100" : "opacity-0")
                           }/>
@@ -138,6 +146,29 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+                {/* material and finishes options */}
+                {[MATERIALS, FINISHES].map(({ name, options: selectableOptions }) => (
+                  <RadioGroup
+                    key={name}
+                    value={options[name]}
+                    onChange={(val) => {
+                      setOptions((prev) => ({...prev, [name]: val}))
+                    }}
+                  >
+                    <Label>{name.slice(0, 1).toUpperCase() + name.slice(1)}</Label>
+                    <div className="mt-3 space-y-4">
+                      {
+                        selectableOptions.map((option) => (
+                          <Radio
+                            key={option.value}
+                            value={option}>
+
+                          </Radio>
+                        ))  
+                      }
+                    </div>
+                  </RadioGroup>
+                ))}
               </div>
             </div>
 
