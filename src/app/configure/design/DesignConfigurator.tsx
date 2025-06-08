@@ -3,16 +3,18 @@
 import HandleComponent from "@/components/atoms/HandleComponent";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import NextImage from "next/image";
 import { Rnd } from "react-rnd";
-import { Radio, RadioGroup } from '@headlessui/react';
+import { Description, Radio, RadioGroup } from '@headlessui/react';
 import { useState } from "react";
 import { COLORS, FINISHES, MATERIALS, MODELS } from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
+import Seperator from "@/components/atoms/Seperator";
+import { BASE_PRICE } from "@/app/config/products";
 
 interface DesignConfiguratorProps {
   configId: string
@@ -34,7 +36,7 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
   })
 
   return (
-    <div className="relative mt-20 grid grid-cols-3 mb-20 pb-20">
+    <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20">
       <div className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
         <div className="relative w-60 bg-opacity-50 pointer-events-none aspect-[896/1831]">
             <AspectRatio ratio={896 / 1831} className="pointer-events-none relative z-50 aspect-[896/1831] w-full">
@@ -65,17 +67,17 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
             </div>
         </Rnd>
       </div>
-      <div className="h-[37.5rem] flex flex-col bg-white">
-        <ScrollArea>
+      <div className="h-[37.5rem] w-full col-span-full lg:col-span-1 flex flex-col bg-white items-center lg:items-start mt-8 lg:mt-0">
+        <ScrollArea className="relative flex-1 overflow-auto">
           <div aria-hidden='true' className='absolute z-10 inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white pointer-events-none'/>
+          <div aria-hidden='true' className='absolute z-10 inset-x-0 top-0 h-12 bg-gradient-to-b from-white pointer-events-none'/>
 
           <div className='px-8 pb-12 pt-8'>
             <h2 className='tracking-tight font-bold text-3xl'>
               Customize your case
             </h2>
 
-            <div className='w-full h-px bg-zinc-200 my-6' />
-
+            <Seperator className="my-6"/>
             <div className="relative mt-4 h-full flex flex-col sm:flex-row justify-between">
               <div className="flex flex-col gap-6">
                 {/* color options */}
@@ -155,14 +157,28 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
                       setOptions((prev) => ({...prev, [name]: val}))
                     }}
                   >
-                    <Label>{name.slice(0, 1).toUpperCase() + name.slice(1)}</Label>
+                    <Label>{ name.slice(0, 1).toUpperCase() + name.slice(1) }</Label>
                     <div className="mt-3 space-y-4">
                       {
                         selectableOptions.map((option) => (
                           <Radio
                             key={option.value}
-                            value={option}>
-
+                            value={option}
+                            className={({ checked }) => cn("relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none ring-0 focus:ring-0 outline-none sm:flex sm:justify-between",
+                              { "border-primary": checked })}
+                          >
+                            <span className="flex items-center">
+                              <span className="flex flex-col text-sm cursor-pointer">
+                                <Label className="font-medium text-gray-900 cursor-pointer">{option.label}</Label>
+                                {option.description ? <Description as="span" className="cursor-pointer text-gray-500"><span className="block sm:inline">{option.description}</span></Description> : null}
+                              </span>
+                            </span>
+                            {/* price */}
+                            <Description as="span" className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right">
+                              <span className="font-medium text-gray-900">
+                                {formatPrice(option.price / 100)}
+                              </span>
+                            </Description>
                           </Radio>
                         ))  
                       }
@@ -174,6 +190,19 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
 
           </div>
         </ScrollArea>
+        
+        <div className="w-full px-8 h-16 bg-white">
+          <Seperator />
+          <div className="w-full h-full flex justify-end items-center">
+            <div className="w-full relative justify-center lg:justify-normal flex gap-6 items-center">
+              <p className="font-medium whitespace-nowrap">{formatPrice((BASE_PRICE + options.finish.price + options.material.price) / 100)}</p>
+              <Button size="sm">
+                Continue
+                <ArrowRight className="h-4 w-4 ml-1.5 inline"/>
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
