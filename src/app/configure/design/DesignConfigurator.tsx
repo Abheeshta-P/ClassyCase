@@ -7,7 +7,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import NextImage from "next/image";
 import { Rnd } from "react-rnd";
 import { Description, Radio, RadioGroup } from '@headlessui/react';
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { COLORS, FINISHES, MATERIALS, MODELS } from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
 import Seperator from "@/components/atoms/Seperator";
 import { BASE_PRICE } from "@/app/config/products";
+import { useUploadThing } from "@/lib/uploadthing";
+import { toast } from "sonner";
 
 interface DesignConfiguratorProps {
   configId: string
@@ -33,13 +35,88 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
     model: MODELS.options[0],
     material: MATERIALS.options[0],
     finish: FINISHES.options[0],
-  })
+  });
+
+  const [renderedPosition, setRenderedPosition] = useState({
+    x: 150,
+    y: 205
+  });
+
+  const [renderedDimension, setRenderedDimension] = useState({
+    width: imageDimensions.width / 4,
+    height: imageDimensions.height / 4
+  });
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const phoneCaseRef = useRef<HTMLDivElement>(null);
+
+  const { startUpload } = useUploadThing('imageUploader')
+
+  async function saveConfiguration() {
+    try {
+      const {
+        left: caseLeft,
+        top: caseTop,
+        width,
+        height,
+      } = phoneCaseRef.current!.getBoundingClientRect()
+
+      const { left: containerLeft, top: containerTop } =
+        containerRef.current!.getBoundingClientRect()
+
+      const leftOffset = caseLeft - containerLeft
+      const topOffset = caseTop - containerTop
+
+      const actualX = renderedPosition.x - leftOffset
+      const actualY = renderedPosition.y - topOffset
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+
+      const userImage = new Image()
+      userImage.crossOrigin = 'anonymous'
+      userImage.src = imgURL
+      await new Promise((resolve) => (userImage.onload = resolve))
+
+      ctx?.drawImage(
+        userImage,
+        actualX,
+        actualY,
+        renderedDimension.width,
+        renderedDimension.height
+      )
+
+      const base64 = canvas.toDataURL()
+      const base64Data = base64.split(',')[1]
+
+      const blob = base64ToBlob(base64Data, 'image/png')
+      const file = new File([blob], 'filename.png', { type: 'image/png' })
+
+      await startUpload([file], { configId })
+    } catch (err) {
+      toast('Something went wrong', {
+        description: 'There was a problem saving your config, please try again.',
+      })
+    }
+  }
+
+  function base64ToBlob(base64: string, mimeType: string) {
+    const byteCharacters = atob(base64)
+    const byteNumbers = new Array(byteCharacters.length)
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i)
+    }
+    const byteArray = new Uint8Array(byteNumbers)
+    return new Blob([byteArray], { type: mimeType })
+  }
 
   return (
     <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20">
-      <div className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+      <div ref={containerRef} className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
         <div className="relative w-60 bg-opacity-50 pointer-events-none aspect-[896/1831]">
-            <AspectRatio ratio={896 / 1831} className="pointer-events-none relative z-50 aspect-[896/1831] w-full">
+            <AspectRatio ref={phoneCaseRef} ratio={896 / 1831} className="pointer-events-none relative z-50 aspect-[896/1831] w-full">
               <NextImage fill alt="phone template" src={"/images/phone-template.png"} className="pointer-events-none z-50 select-none" />
             </AspectRatio>
             
@@ -53,14 +130,28 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
             height: imageDimensions.height / 4,
             width: imageDimensions.width / 4
           }}
-            lockAspectRatio
-            resizeHandleComponent={{
+          lockAspectRatio
+          // set position
+          onDragStop={(_, data) => {
+            const { x, y } = data;
+            setRenderedPosition({ x, y})
+          }}
+          // set width height 
+          onResizeStop={(_, __, ref, ___, { x, y }) => {
+            // style.width/height : gives in string -> 10px
+            setRenderedDimension({
+              width: parseInt(ref.style.width.slice(0, -2)),
+              height: parseInt(ref.style.width.slice(0, -2))
+            });
+            setRenderedPosition({ x, y });
+          }}
+          resizeHandleComponent={{
               bottomRight: <HandleComponent/>,
               bottomLeft: <HandleComponent/>,
               topRight: <HandleComponent/>,
               topLeft: <HandleComponent/>,
-            }}
-            className="absolute z-20 ring-[2px] ring-primary"
+          }}
+          className="absolute z-20 ring-[2px] ring-primary"
           >
             <div className="relative w-full h-full">
               <NextImage className="pointer-events-none select-none" src={imgURL} alt="your image" fill/>
@@ -196,7 +287,7 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
           <div className="w-full h-full flex justify-end items-center">
             <div className="w-full relative justify-center lg:justify-normal flex gap-6 items-center">
               <p className="font-medium whitespace-nowrap">{formatPrice((BASE_PRICE + options.finish.price + options.material.price) / 100)}</p>
-              <Button size="sm">
+              <Button size="sm" className="cursor-pointer" onClick={() => saveConfiguration()}>
                 Continue
                 <ArrowRight className="h-4 w-4 ml-1.5 inline"/>
               </Button>
