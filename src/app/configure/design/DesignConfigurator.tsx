@@ -17,6 +17,9 @@ import Seperator from "@/components/atoms/Seperator";
 import { BASE_PRICE } from "@/app/config/products";
 import { useUploadThing } from "@/lib/uploadthing";
 import { toast } from "sonner";
+import { start } from "node:repl";
+
+// TODO: DB update with cropped URL model, color, texture
 
 interface DesignConfiguratorProps {
   configId: string
@@ -50,66 +53,73 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
   const containerRef = useRef<HTMLDivElement>(null);
   const phoneCaseRef = useRef<HTMLDivElement>(null);
 
-  const { startUpload } = useUploadThing('imageUploader')
+  const { startUpload } = useUploadThing("imageUploader");
 
   async function saveConfiguration() {
     try {
-      const {
-        left: caseLeft,
-        top: caseTop,
-        width,
-        height,
-      } = phoneCaseRef.current!.getBoundingClientRect()
+      // get the container position from left of screen
+      const { left: containerLeft, top: containerTop } = containerRef.current!.getBoundingClientRect();
+      
+      // get the phone case position from left of screen
+      const { left: phoneCaseLeft, top: phoneCaseTop, width, height } = phoneCaseRef.current!.getBoundingClientRect();
 
-      const { left: containerLeft, top: containerTop } =
-        containerRef.current!.getBoundingClientRect()
+      // get the phone case position from left of container
+      const leftOffset = phoneCaseLeft - containerLeft;
+      const topOffset = phoneCaseTop - containerTop;
 
-      const leftOffset = caseLeft - containerLeft
-      const topOffset = caseTop - containerTop
+      // get the picture's position, size with respect to phone case
+      const imageX = renderedPosition.x - leftOffset;
+      const imageY = renderedPosition.y - topOffset;
 
-      const actualX = renderedPosition.x - leftOffset
-      const actualY = renderedPosition.y - topOffset
+      // create a canvas for phone, to save resized and repositioned image
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
 
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')
+      const ctx = canvas.getContext("2d");
 
-      const userImage = new Image()
-      userImage.crossOrigin = 'anonymous'
-      userImage.src = imgURL
-      await new Promise((resolve) => (userImage.onload = resolve))
+      const userImage = new Image();
+      userImage.crossOrigin = "anonymous";
+      userImage.src = imgURL;
+      await new Promise((resolve) => (userImage.onload = resolve));
 
       ctx?.drawImage(
         userImage,
-        actualX,
-        actualY,
+        imageX,
+        imageY,
         renderedDimension.width,
         renderedDimension.height
-      )
+      );
 
-      const base64 = canvas.toDataURL()
-      const base64Data = base64.split(',')[1]
+      // to create a blob, so that the file can be created
 
-      const blob = base64ToBlob(base64Data, 'image/png')
-      const file = new File([blob], 'filename.png', { type: 'image/png' })
+      const base64 = canvas.toDataURL();
+      const base64Data = base64.split(",")[1];
 
-      await startUpload([file], { configId })
+      const blob = base64ToBlob(base64Data, "image/png");
+      const file = new File([blob], `filename-${new Date()}.png`, { type: "image/png" });
+
+      // upload the file to uploadthing
+      await startUpload([file], { configId });
+
     } catch (err) {
       toast('Something went wrong', {
         description: 'There was a problem saving your config, please try again.',
-      })
+      });
     }
   }
 
   function base64ToBlob(base64: string, mimeType: string) {
-    const byteCharacters = atob(base64)
-    const byteNumbers = new Array(byteCharacters.length)
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i)
+    // blob to byte
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+
+    for (let i = 0; i < byteCharacters.length; i++){
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
-    const byteArray = new Uint8Array(byteNumbers)
-    return new Blob([byteArray], { type: mimeType })
+
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
   }
 
   return (
@@ -141,7 +151,7 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
             // style.width/height : gives in string -> 10px
             setRenderedDimension({
               width: parseInt(ref.style.width.slice(0, -2)),
-              height: parseInt(ref.style.width.slice(0, -2))
+              height: parseInt(ref.style.height.slice(0, -2))
             });
             setRenderedPosition({ x, y });
           }}
@@ -299,4 +309,4 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
   )
 }
 
-export default DesignConfigurator
+export default DesignConfigurator;
