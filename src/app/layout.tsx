@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components";
 import Footer from "@/components/organisms/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import Providers from "@/components/atoms/Providers";
 
 const recursive = Recursive({ subsets: ['latin'] })
 
@@ -28,7 +29,7 @@ export default function RootLayout({
         <Navbar/>
         <main className="flex flex-col min-h-[calc(100vh-4rem-1px)]">
           <div className="flex-1 flex flex-col h-full">
-            {children}
+            <Providers>{children}</Providers>
           </div>
           <Footer/>
         </main>

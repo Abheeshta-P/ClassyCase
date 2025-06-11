@@ -17,9 +17,9 @@ import Seperator from "@/components/atoms/Seperator";
 import { BASE_PRICE } from "@/app/config/products";
 import { useUploadThing } from "@/lib/uploadthing";
 import { toast } from "sonner";
-import { start } from "node:repl";
-
-// TODO: DB update with cropped URL model, color, texture
+import { useMutation } from "@tanstack/react-query";
+import { saveConfig as _saveConfig, saveConfigArgs } from "./action";
+import { useRouter } from "next/navigation";
 
 interface DesignConfiguratorProps {
   configId: string
@@ -28,6 +28,25 @@ interface DesignConfiguratorProps {
 }
 
 function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfiguratorProps) {
+
+  const router = useRouter();
+
+  // TanStack Query manages server state (data from API) — useMutation lets you perform writes (POST/PUT/DELETE); call mutate(data) to trigger the mutationFn, auto-tracks loading/error/success, and runs optional lifecycle callbacks like onSuccess/onError.
+  const { mutate: saveConfig, isPending } = useMutation({
+    // key to access stored data
+    mutationKey: ["save-config"],
+    mutationFn: async (args: saveConfigArgs) => {
+      await Promise.all([saveConfiguration(), _saveConfig(args)]);
+    },
+    onError: () => {
+      toast("Something went wrong", {
+        description: "There was an error on our end. Please try again."
+      });
+    },
+    onSuccess: () => {
+      router.push(`/configure/preview?id=${configId}`);
+    }
+  })
   const [options, setOptions] = useState<{
     color: (typeof COLORS)[number],
     model: (typeof MODELS.options)[number],
@@ -97,7 +116,7 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
       const base64Data = base64.split(",")[1];
 
       const blob = base64ToBlob(base64Data, "image/png");
-      const file = new File([blob], `filename-${new Date()}.png`, { type: "image/png" });
+      const file = new File([blob], `filename-${Date.now()}.png`, { type: "image/png" });
 
       // upload the file to uploadthing
       await startUpload([file], { configId });
@@ -220,7 +239,7 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
                 <div className="relative flex flex-col gap-3 w-full">
                   <Label>Model</Label>
                   <DropdownMenu>
-                    <DropdownMenuTrigger>
+                    <DropdownMenuTrigger asChild>
                       <Button
                         variant={"outline"}
                         role="combobox"
@@ -297,7 +316,13 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
           <div className="w-full h-full flex justify-end items-center">
             <div className="w-full relative justify-center lg:justify-normal flex gap-6 items-center">
               <p className="font-medium whitespace-nowrap">{formatPrice((BASE_PRICE + options.finish.price + options.material.price) / 100)}</p>
-              <Button size="sm" className="cursor-pointer" onClick={() => saveConfiguration()}>
+              <Button size="sm" className="cursor-pointer" onClick={() => saveConfig({
+                configId,
+                color: options.color.value,
+                finish: options.finish.value,
+                material: options.material.value,
+                model: options.model.value,
+              })}>
                 Continue
                 <ArrowRight className="h-4 w-4 ml-1.5 inline"/>
               </Button>

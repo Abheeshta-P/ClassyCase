@@ -10,4 +10,4 @@ export const PRODUCT_PRICES = {
 } as const;
 
 // In cents
-export const BASE_PRICE = 14_00;
+export const BASE_PRICE = 25_00;
