@@ -316,7 +316,11 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
           <div className="w-full h-full flex justify-end items-center">
             <div className="w-full relative justify-center lg:justify-normal flex gap-6 items-center">
               <p className="font-medium whitespace-nowrap">{formatPrice((BASE_PRICE + options.finish.price + options.material.price) / 100)}</p>
-              <Button size="sm" className="cursor-pointer" onClick={() => saveConfig({
+              <Button size="sm" className="cursor-pointer"
+                isLoading={isPending}
+                disabled={isPending}
+                loadingText="Saving"
+                onClick={() => saveConfig({
                 configId,
                 color: options.color.value,
                 finish: options.finish.value,

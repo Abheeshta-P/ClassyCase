@@ -154,10 +154,23 @@ img{
   }
 }
 
+@keyframes flashing {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+}
+
 .animate-marquee {
   animation: marquee var(--marquee-duration) linear infinite;
 }
 
 .animate-fade-in {
   animation: fade-in 0.5s linear forwards;
+}
+
+.animate-flashing {
+  animation: flashing 1.4s infinite linear;
 }
