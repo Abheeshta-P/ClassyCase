@@ -8,14 +8,14 @@ interface PageProps {
   }
 }
 
-function page({ searchParams }: PageProps) {
-  const { id } = searchParams;
+async function page({ searchParams }: PageProps) {
+  const { id } = await searchParams;
 
   if (!id || typeof id != "string") {
     return notFound();
   }
 
-  const configuration = db.configuration.findUnique({
+  const configuration = await db.configuration.findUnique({
     where: { id },
   });
 
@@ -24,7 +24,7 @@ function page({ searchParams }: PageProps) {
   }
 
   return (
-    <DesignPreview />
+    <DesignPreview configuration={ configuration } />
   );
 }
 
