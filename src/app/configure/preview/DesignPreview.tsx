@@ -10,6 +10,8 @@ import { BASE_PRICE, PRODUCT_PRICES } from '@/app/config/products';
 import { ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Seperator from '@/components/atoms/Seperator';
+import { useMutation } from '@tanstack/react-query';
+import { createCheckoutSession } from './action';
 
 function DesignPreview({configuration}:{ configuration: Configuration }) {
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
@@ -27,6 +29,11 @@ function DesignPreview({configuration}:{ configuration: Configuration }) {
     totalPrice += PRODUCT_PRICES.material.polycarbonate;
   if (finish === "textured")
     totalPrice += PRODUCT_PRICES.finish.textured;
+
+  const { } = useMutation({
+    mutationKey: ["get-checkout-session"],
+    mutationFn: createCheckoutSession
+  })
 
   const handleCheckout = () => {
 
@@ -63,14 +70,14 @@ function DesignPreview({configuration}:{ configuration: Configuration }) {
             </div>
         </div>
 
-        <div className='sm:col-span-12 md:col-span-9 text-base'>
-            <div className='grid grid-cols-1 gap-y-8 border-b sm:ml-8 md:ml-0 border-gray-200 py-8 sm:grid-cols-2 sm:gap-x-2 sm:py-6 md:py-8'>
+        <div className='sm:col-span-12 md:col-span-9 text-base items-center justify-items-center'>
+            <div className='grid max-w-[90%] mx-auto items-center grid-cols-1 gap-y-8 border-b  border-gray-200 py-8 sm:grid-cols-2 sm:gap-x-2 sm:py-6 md:py-8'>
               <div>
                 <p className='font-medium text-zinc-950'>Highlights</p>
                 <ol className='mt-3 text-zinc-700 list-disc list-inside'>
                   <li>Wireless charging compatible</li>
                   <li>TPU shock absorption</li>
-                  <li className='text-wrap'>Packaging made from recycled materials</li>
+                  <li>Packaging made from recycled materials</li>
                   <li>5 year print warranty</li>
                 </ol>
               </div>
@@ -125,7 +132,7 @@ function DesignPreview({configuration}:{ configuration: Configuration }) {
               <div className='mt-8 flex justify-end pb-12'>
                 <Button
                   onClick={() => handleCheckout()}
-                  className='px-4 sm:px-6 lg:px-8'>
+                  className='px-4 sm:px-6 lg:px-8 cursor-pointer'>
                   Check out <ArrowRight className='h-4 w-4 ml-1.5 inline' />
                 </Button>
               </div>

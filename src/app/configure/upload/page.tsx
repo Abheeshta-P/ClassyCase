@@ -16,13 +16,16 @@ function Page() {
 
   const router = useRouter();
 
+  // Initial mounting/loading
+  const [isPending, startTransition] = useTransition();
+
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
     onClientUploadComplete: ([data]) => {
       const configId = data.serverData.configId;
       // Redirect the user
       startTransition(() => {
         router.push(`/configure/design?id=${configId}`);
-      })
+      });
     }, 
 
     // upload progress value
@@ -31,8 +34,6 @@ function Page() {
     }
   });
 
-  // Initial mounting/loading
-  const [isPending, startTransition] = useTransition();
 
   const onDropRejected = (rejectedFiles: FileRejection[]) => {
     const [file] = rejectedFiles;

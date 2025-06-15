@@ -1,4 +1,5 @@
-"use server";
+"use server"
+
 import { db } from '@/db';
 import { CaseColor, CaseFinish, CaseMaterial, PhoneModel } from '@prisma/client'
 

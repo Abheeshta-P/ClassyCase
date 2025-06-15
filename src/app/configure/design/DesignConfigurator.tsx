@@ -7,7 +7,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import NextImage from "next/image";
 import { Rnd } from "react-rnd";
 import { Description, Radio, RadioGroup } from '@headlessui/react';
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { COLORS, FINISHES, MATERIALS, MODELS } from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -31,6 +31,9 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
 
   const router = useRouter();
 
+  // Initial mounting/loading
+  const [isTransitioning, startTransition] = useTransition();
+
   // TanStack Query manages server state (data from API) — useMutation lets you perform writes (POST/PUT/DELETE); call mutate(data) to trigger the mutationFn, auto-tracks loading/error/success, and runs optional lifecycle callbacks like onSuccess/onError.
   const { mutate: saveConfig, isPending } = useMutation({
     // key to access stored data
@@ -44,9 +47,12 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
       });
     },
     onSuccess: () => {
-      router.push(`/configure/preview?id=${configId}`);
+      startTransition(() => {
+        router.push(`/configure/preview?id=${configId}`);
+      });
     }
   })
+
   const [options, setOptions] = useState<{
     color: (typeof COLORS)[number],
     model: (typeof MODELS.options)[number],
@@ -317,8 +323,8 @@ function DesignConfigurator({ configId, imgURL, imageDimensions }: DesignConfigu
             <div className="w-full relative justify-center lg:justify-normal flex gap-6 items-center">
               <p className="font-medium whitespace-nowrap">{formatPrice((BASE_PRICE + options.finish.price + options.material.price) / 100)}</p>
               <Button size="sm" className="cursor-pointer"
-                isLoading={isPending}
-                disabled={isPending}
+                isLoading={isPending || isTransitioning}
+                disabled={isPending || isTransitioning}
                 loadingText="Saving"
                 onClick={() => saveConfig({
                 configId,
