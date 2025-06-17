@@ -14,19 +14,26 @@ import { useMutation } from "@tanstack/react-query";
 import { createCheckoutSession } from "./action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import LoginModal from "@/components/molecules/LoginModal";
 
 function DesignPreview({ configuration }: { configuration: Configuration }) {
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const router = useRouter();
 
+  const { user } = useKindeBrowserClient();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+
   useEffect(() => {
     setShowConfetti(true);
   }, []);
 
-  const { color, model, finish, material } = configuration;
+  const { color, model, finish, material, id } = configuration;
+
   const tw = COLORS.find(
     (supportedColor) => supportedColor.value === color
   )?.tw;
+
   const { label: modelLabel } = MODELS.options.find(
     ({ value }) => value === model
   )!;
@@ -53,7 +60,16 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
     },
   });
 
-  const handleCheckout = () => {};
+  const handleCheckout = () => {
+    if (user) {
+      // create payment session
+      CreatePaymentSession({ configId: id });
+    } else {
+      // need to login, store confi in local storage
+      localStorage.setItem("configurationId", id);
+      setIsLoginModalOpen(true);
+    }
+  };
 
   return (
     <>
@@ -66,6 +82,9 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
           config={{ elementCount: 300, spread: 150 }}
         />
       </div>
+
+      {/* Login modal */}
+      <LoginModal isOpen={isLoginModalOpen}  setIsOpen={setIsLoginModalOpen}/>
 
       {/* main content */}
       <div className="mt-20 flex flex-col items-center sm:grid-cols-12 sm:grid-rows-1 md:grid sm:gap-x-6 md:gap-x-8 lg:gap-x-12 ">
@@ -148,7 +167,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
             <div className="mt-8 flex justify-end pb-12">
               <Button
                 onClick={() =>
-                  CreatePaymentSession({ configId: configuration.id })
+                  handleCheckout()
                 }
                 className="px-4 sm:px-6 lg:px-8 cursor-pointer"
               >
