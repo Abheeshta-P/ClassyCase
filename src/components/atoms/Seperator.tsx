@@ -5,9 +5,7 @@ type SeperatorProps = {
 };
 
 function Seperator({ className }: SeperatorProps) {
-  return (
-    <div className={cn("h-px w-full bg-zinc-200", className)} />
-  );
+  return <div className={cn("h-px w-full bg-zinc-200", className)} />;
 }
 
 export default Seperator;

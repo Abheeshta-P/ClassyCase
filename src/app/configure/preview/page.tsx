@@ -5,7 +5,7 @@ import DesignPreview from "./DesignPreview";
 interface PageProps {
   searchParams: {
     [key: string]: string | string[] | undefined;
-  }
+  };
 }
 
 async function page({ searchParams }: PageProps) {
@@ -23,9 +23,7 @@ async function page({ searchParams }: PageProps) {
     return notFound();
   }
 
-  return (
-    <DesignPreview configuration={ configuration } />
-  );
+  return <DesignPreview configuration={configuration} />;
 }
 
-export default page
+export default page;

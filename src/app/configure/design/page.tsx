@@ -4,20 +4,20 @@ import DesignConfigurator from "./DesignConfigurator";
 
 interface PageProps {
   searchParams: {
-    [key: string]: string | string[] | undefined
-  }
+    [key: string]: string | string[] | undefined;
+  };
 }
 
 async function Page({ searchParams }: PageProps) {
   const { id } = await searchParams;
 
-  if (!id || typeof id !== 'string') {
+  if (!id || typeof id !== "string") {
     return notFound();
   }
 
   const configuration = await db.configuration.findUnique({
     where: { id },
-  })
+  });
 
   if (!configuration) {
     return notFound();
@@ -26,8 +26,12 @@ async function Page({ searchParams }: PageProps) {
   const { imageURL, width, height } = configuration;
 
   return (
-    <DesignConfigurator configId={configuration.id} imageDimensions={{ width, height }} imgURL={imageURL} />
-  )
+    <DesignConfigurator
+      configId={configuration.id}
+      imageDimensions={{ width, height }}
+      imgURL={imageURL}
+    />
+  );
 }
 
 export default Page;
