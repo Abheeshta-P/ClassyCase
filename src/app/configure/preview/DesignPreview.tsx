@@ -2,7 +2,7 @@
 
 import Phone from "@/components/atoms/Phone";
 import { Configuration } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react"; // Import useRef
 import Confetti from "react-dom-confetti";
 import { cn, formatPrice } from "@/lib/utils";
 import { COLORS, MODELS } from "@/validators/option-validator";
@@ -24,6 +24,9 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
   const { user } = useKindeBrowserClient();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
+  // Use a ref to prevent immediate re-triggering on every render
+  const isInitialLoad = useRef(true); // To prevent `useEffect` from running on first render for this logic
+
   useEffect(() => {
     setShowConfetti(true);
   }, []);
@@ -43,29 +46,56 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
     totalPrice += PRODUCT_PRICES.material.polycarbonate;
   if (finish === "textured") totalPrice += PRODUCT_PRICES.finish.textured;
 
-  const { mutate: CreatePaymentSession } = useMutation({
+  const { mutate: CreatePaymentSession, isPending } = useMutation({
+    // Add isPending for button state
     mutationKey: ["get-checkout-session"],
     mutationFn: createCheckoutSession,
 
-    // session successful may not be payment
     onSuccess: ({ url }) => {
       if (url) router.push(url);
-      else throw new Error("Unable to retrive payment URL");
+      else throw new Error("Unable to retrieve payment URL");
     },
-    onError: () => {
+    onError: (err) => {
+      // Get the error object for more specific messages
+      console.error("Checkout session error:", err); // Log the error
       toast.error("Something went wrong", {
         description:
-          "There was a problem saving your config, please try again.",
+          "There was a problem creating your checkout session. Please try again.",
       });
     },
   });
 
+  // Effect to handle post-login redirect or hydration
+  useEffect(() => {
+    // Only run this logic AFTER the initial component mount
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      return;
+    }
+
+    const configurationId = localStorage.getItem("configurationId");
+
+    // If user is logged in AND there's a stored configuration ID
+    if (user && configurationId) {
+      // Clear the stored ID immediately
+      localStorage.removeItem("configurationId");
+
+      // Close the login modal if it was open
+      setIsLoginModalOpen(false);
+
+      // Trigger the payment session creation
+      // Pass the current configId from props, not from localStorage
+      // The stored ID was just to indicate intent to checkout this specific config
+      CreatePaymentSession({ configId: configuration.id });
+    }
+  }, [user, CreatePaymentSession, configuration.id]); // Dependencies: user state, and mutation function
+
   const handleCheckout = () => {
     if (user) {
-      // create payment session
+      // User is logged in, proceed to create payment session
       CreatePaymentSession({ configId: id });
     } else {
-      // need to login, store confi in local storage
+      // User is NOT logged in, show login modal and store configId
       localStorage.setItem("configurationId", id);
       setIsLoginModalOpen(true);
     }
@@ -84,7 +114,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
       </div>
 
       {/* Login modal */}
-      <LoginModal isOpen={isLoginModalOpen}  setIsOpen={setIsLoginModalOpen}/>
+      <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
 
       {/* main content */}
       <div className="mt-20 flex flex-col items-center sm:grid-cols-12 sm:grid-rows-1 md:grid sm:gap-x-6 md:gap-x-8 lg:gap-x-12 ">
@@ -121,6 +151,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
               <ol className="mt-3 text-zinc-700 list-disc list-inside">
                 <li>High-quality, durable material</li>
                 <li>Scratch- and fingerprint resistant coating</li>
+                <li>5 year print warranty</li>
               </ol>
             </div>
           </div>
@@ -166,12 +197,13 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
 
             <div className="mt-8 flex justify-end pb-12">
               <Button
-                onClick={() =>
-                  handleCheckout()
-                }
+                onClick={handleCheckout}
                 className="px-4 sm:px-6 lg:px-8 cursor-pointer"
+                isLoading={isPending}
+                disabled={isPending} 
               >
-                Check out <ArrowRight className="h-4 w-4 ml-1.5 inline" />
+                {isPending ? "Processing..." : "Check out"}{" "}
+                <ArrowRight className="h-4 w-4 ml-1.5 inline" />
               </Button>
             </div>
           </div>
