@@ -49,8 +49,8 @@ export async function POST(req: Request) {
         throw new Error("Invalid request metadata");
       }
 
-      const billingAddress = session.customer_details!.address
-      const shippingAddress = session.shipping_details!.address
+      const billingAddress = session.customer_details!.address;
+      const shippingAddress = session.collected_information!.shipping_details!.address;
 
       await db.order.update({
         where: {
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
               state: billingAddress!.state,
             },
           },
-        }
+        },
       });
     }
   } catch (error) {
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     console.error(error);
 
     return NextResponse.json(
-      { message: "Something went wrong", ok: false },
+      { message: "Something went wrong", ok: false, error: JSON.stringify(error) },
       { status: 500 }
     );
   }
