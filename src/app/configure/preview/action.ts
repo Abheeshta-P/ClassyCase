@@ -77,6 +77,7 @@ export async function createCheckoutSession({
     shipping_address_collection: {
       allowed_countries: ["DE", "US", "IN", "SN"],
     },
+    billing_address_collection: "auto",
 
     // When webhook from stripe got info about successful checkout/pay,
     // To know which user and which order it is related to

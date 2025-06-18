@@ -28,7 +28,6 @@ export async function POST(req: Request) {
     if (event.type === "checkout.session.completed") {
       // user payed
       if (!event.data.object.customer_details?.email) {
-        // if no email assosiated (ts)
         throw new Error("Missing user email");
       }
 
@@ -44,13 +43,21 @@ export async function POST(req: Request) {
         orderId: null,
       };
 
-      // if no user/order
       if (!userId || !orderId) {
         throw new Error("Invalid request metadata");
       }
 
-      const billingAddress = session.customer_details!.address;
-      const shippingAddress = session.collected_information!.shipping_details!.address;
+      // Ensure shippingAddress is always present, as it was collected
+      const shippingAddress =
+        session.collected_information?.shipping_details?.address;
+      const customerName = session.customer_details?.name; // Get customer name once
+
+      if (!shippingAddress || !customerName) {
+        throw new Error("Missing shipping details or customer name in session");
+      }
+
+      // Otherwise, default to using the shipping address as the billing address.
+      const billingAddress = session.customer_details?.address || shippingAddress; 
 
       await db.order.update({
         where: {
@@ -60,34 +67,44 @@ export async function POST(req: Request) {
           isPaid: true,
           shippingAddress: {
             create: {
-              name: session.customer_details!.name!,
-              city: shippingAddress!.city!,
-              country: shippingAddress!.country!,
-              postalCode: shippingAddress!.postal_code!,
-              street: shippingAddress!.line1!,
-              state: shippingAddress!.state,
+              name: customerName, 
+              city: shippingAddress.city!,
+              country: shippingAddress.country!,
+              postalCode: shippingAddress.postal_code!,
+              street: shippingAddress.line1!,
+              state: shippingAddress.state,
             },
           },
           billingAddress: {
             create: {
-              name: session.customer_details!.name!,
-              city: billingAddress!.city!,
-              country: billingAddress!.country!,
-              postalCode: billingAddress!.postal_code!,
-              street: billingAddress!.line1!,
-              state: billingAddress!.state,
+              name: customerName, 
+              city: billingAddress.city!,
+              country: billingAddress.country!,
+              postalCode: billingAddress.postal_code!,
+              street: billingAddress.line1!,
+              state: billingAddress.state,
             },
           },
         },
       });
     }
-  } catch (error) {
-    // could be sent to sentry
-    console.error(error);
 
-    return NextResponse.json(
-      { message: "Something went wrong", ok: false, error: JSON.stringify(error) },
-      { status: 500 }
+    return NextResponse.json({ result: event, ok: true }); 
+  } catch (error) {
+    console.error("Stripe Webhook Error:", error);
+
+    // Return 500 status and error details for Stripe to see
+    return new Response(
+      JSON.stringify({
+        message: "Webhook processing failed",
+        error: (error as Error).message,
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
   }
 }
