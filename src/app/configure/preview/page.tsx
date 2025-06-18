@@ -1,12 +1,8 @@
 import { db } from "@/db";
 import { notFound } from "next/navigation";
 import DesignPreview from "./DesignPreview";
+import { PageProps } from "../../../../.next/types/app/configure/preview/page";
 
-interface PageProps {
-  searchParams: {
-    [key: string]: string | string[] | undefined;
-  };
-}
 
 async function Page({ searchParams }: PageProps) {
   const { id } = await searchParams;
