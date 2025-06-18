@@ -6,7 +6,7 @@ import { getAuthStatus } from "./action";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-function page() {
+function Page() {
   const [configId, setConfigId] = useState<string | null>(null);
   const router = useRouter();
 
@@ -26,15 +26,18 @@ function page() {
     retryDelay: 500,
   });
 
-  if (data?.sucess) {
-    if (configId) {
-      // user in db & started creation of case design
-      localStorage.removeItem("configurationId");
-      router.push(`/configure/preview?id=${configId}`);
-    } else {
-      router.push("/");
+  // All side-effects like routing must happen in useEffect
+  useEffect(() => {
+    if (data?.sucess) {
+      if (configId) {
+        localStorage.removeItem("configurationId");
+        router.push(`/configure/preview?id=${configId}`);
+      } else {
+        router.push("/");
+      }
     }
-  }
+  }, [data, configId, router]);
+
   return (
     <div className="w-full mt-24 flex justify-center">
       <div className="flex flex-col items-center gap-2">
@@ -45,4 +48,4 @@ function page() {
     </div>
   );
 }
-export default page;
+export default Page;
