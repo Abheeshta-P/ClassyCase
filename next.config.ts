@@ -17,9 +17,7 @@ const nextConfig: NextConfig = {
         headers: [
           // Allow credentials (e.g., cookies, authorization headers)
           { key: "Access-Control-Allow-Credentials", value: "true" },
-          // Allow requests from your Vercel deployment and local development
           // In production, it's best to be explicit with your domain.
-          // For now, let's include localhost for dev and your Vercel URL.
           {
             key: "Access-Control-Allow-Origin",
             value:
