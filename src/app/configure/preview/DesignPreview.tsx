@@ -16,16 +16,17 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import LoginModal from "@/components/molecules/LoginModal";
+import Loading from "@/components/atoms/Loading";
 
 function DesignPreview({ configuration }: { configuration: Configuration }) {
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const router = useRouter();
 
-  const { user } = useKindeBrowserClient();
+  const { user, isLoading } = useKindeBrowserClient();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
   // Use a ref to prevent immediate re-triggering on every render
-  const isInitialLoad = useRef(true); // To prevent `useEffect` from running on first render for this logic
+  const isInitialLoad = useRef(true); 
 
   useEffect(() => {
     setShowConfetti(true);
@@ -47,7 +48,6 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
   if (finish === "textured") totalPrice += PRODUCT_PRICES.finish.textured;
 
   const { mutate: CreatePaymentSession, isPending } = useMutation({
-    // Add isPending for button state
     mutationKey: ["get-checkout-session"],
     mutationFn: createCheckoutSession,
 
@@ -56,8 +56,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
       else throw new Error("Unable to retrieve payment URL");
     },
     onError: (err) => {
-      // Get the error object for more specific messages
-      console.error("Checkout session error:", err); // Log the error
+      console.error("Checkout session error:", err); 
       toast.error("Something went wrong", {
         description:
           "There was a problem creating your checkout session. Please try again.",
@@ -74,9 +73,8 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
     }
 
     const configurationId = localStorage.getItem("configurationId");
-
     // If user is logged in AND there's a stored configuration ID
-    if (user && configurationId) {
+    if (!isLoading && user && configurationId) {
       // Clear the stored ID immediately
       localStorage.removeItem("configurationId");
 
@@ -84,22 +82,28 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
       setIsLoginModalOpen(false);
 
       // Trigger the payment session creation
-      // Pass the current configId from props, not from localStorage
-      // The stored ID was just to indicate intent to checkout this specific config
       CreatePaymentSession({ configId: configuration.id });
     }
-  }, [user, CreatePaymentSession, configuration.id]); // Dependencies: user state, and mutation function
+  }, [user, CreatePaymentSession, configuration.id]); 
 
   const handleCheckout = () => {
     if (user) {
-      // User is logged in, proceed to create payment session
+      // User is already logged in
+
+      // Proceed to create the payment session directly
       CreatePaymentSession({ configId: id });
     } else {
-      // User is NOT logged in, show login modal and store configId
+      // User is not logged in
+
+      // Store the configuration ID to resume the checkout after login
       localStorage.setItem("configurationId", id);
+
+      // Open the login modal to prompt the user to log in
       setIsLoginModalOpen(true);
     }
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <>
@@ -156,7 +160,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 w-full">
             <div className="bg-gray-100 p-6 sm:rounded-lg sm:p-8">
               <div className="flow-root text-sm">
                 <div className="flex items-center justify-between py-1 mt-2">
@@ -200,7 +204,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
                 onClick={handleCheckout}
                 className="px-4 sm:px-6 lg:px-8 cursor-pointer"
                 isLoading={isPending}
-                disabled={isPending} 
+                disabled={isPending}
               >
                 {isPending ? "Processing" : "Check out"}{" "}
                 <ArrowRight className="h-4 w-4 ml-1.5 inline" />

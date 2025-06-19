@@ -33,7 +33,7 @@ export default function RootLayout({
           </div>
           <Footer/>
         </main>
-        <Toaster richColors/>
+        <Toaster richColors position="top-center"/>
       </body>
     </html>
   );

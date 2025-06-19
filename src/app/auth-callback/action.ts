@@ -9,7 +9,7 @@ export async function getAuthStatus() {
   const user = await getUser();
 
   if (!user?.id || !user?.email) {
-    throw new Error("Invalid user data");
+    return { success: false };
   }
 
   const existingUser = await db.user.findUnique({
@@ -26,5 +26,5 @@ export async function getAuthStatus() {
     });
   }
 
-  return { sucess: true };
+  return { success: true };
 }

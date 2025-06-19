@@ -1,16 +1,81 @@
+"use client";
+
 import { MaxWidthWrapper } from "@/components/";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { buttonVariants } from "../ui/button";
 import { ArrowRight } from "lucide-react";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { ADMIN_EMAIL } from "@/app/config/config";
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-async function Navbar() {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+function Navbar() {
+  const [user, setUser] = useState<KindeUser<Record<string, any>> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/get-user");
+        if (response.ok) {
+          const userData: KindeUser<Record<string, any>> =
+            await response.json();
+          setUser(userData);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user session:", error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const handleAuthClick = (endPoint: string) => {
+    const fullPath = searchParams?.toString()
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("postLoginRedirectPath", fullPath);
+    }
+    router.push(endPoint);
+  };
+
+  // Confirmation dialog
+  const handleOpenSignOutConfirm = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setShowSignOutConfirm(true);
+  };
+
+  const handleConfirmSignOut = () => {
+    localStorage.setItem("postLogoutRedirectHome", "true");
+    router.replace("/api/auth/logout");
+  };
 
   const isAdmin = user?.email === ADMIN_EMAIL;
+
   return (
     <nav className="sticky z-[100] inset-x-0 top-0 p-4 border-b-1 bg-white/75 backdrop-blur-lg transition-all w-full border-gray-200">
       <MaxWidthWrapper>
@@ -19,18 +84,66 @@ async function Navbar() {
             <span className="text-green-600">classy</span>case
           </Link>
           <div className="h-full flex items-center space-x-4">
-            {user ? (
+            {loading ? (
+              // Skeleton loading state
+              <div className="flex items-center space-x-4">
+                <Skeleton className="h-8 w-20" />
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-8 w-28" />
+              </div>
+            ) : user ? (
+              // User is logged in
               <>
-                <Link
-                  href="/api/auth/logout"
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "ghost",
-                  })}
+                {/* Use AlertDialogTrigger here to open the dialog */}
+                <AlertDialog
+                  open={showSignOutConfirm}
+                  onOpenChange={setShowSignOutConfirm}
                 >
-                  Sign out
-                </Link>
-                {isAdmin ? (
+                  <AlertDialogTrigger asChild>
+                    <Link
+                      href="/api/auth/logout"
+                      onClick={handleOpenSignOutConfirm}
+                      className={buttonVariants({
+                        size: "sm",
+                        variant: "ghost",
+                      })}
+                    >
+                      Sign out
+                    </Link>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-white p-6 rounded-lg shadow-xl border border-gray-200">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-xl font-bold text-gray-950">
+                        Confirm Sign Out
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-gray-700 mt-2">
+                        Are you sure you want to sign out? All unsaved data will
+                        be lost, and you will be redirected to the home page.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex justify-end gap-3 mt-4">
+                      <AlertDialogCancel
+                        className={cn(
+                          buttonVariants({ variant: "outline" }),
+                          "px-4 py-2 rounded-md cursor-pointer"
+                        )}
+                      >
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleConfirmSignOut}
+                        className={cn(
+                          buttonVariants({ variant: "destructive" }),
+                          "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md cursor-pointer"
+                        )}
+                      >
+                        Sign Out
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                {isAdmin && (
                   <Link
                     href="/dashboard"
                     className={buttonVariants({
@@ -40,7 +153,10 @@ async function Navbar() {
                   >
                     Dashboard ✨
                   </Link>
-                ) : null}
+                )}
+
+                <div className="h-8 w-px bg-zinc-200 hidden sm:block" />
+
                 <Link
                   href="/configure/upload"
                   className={cn(
@@ -56,26 +172,27 @@ async function Navbar() {
                 </Link>
               </>
             ) : (
+              // User is not logged in
               <>
-                <Link
-                  href="/api/auth/register"
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "ghost",
-                  })}
+                <button
+                  onClick={() => handleAuthClick("/api/auth/register")}
+                  className={cn(
+                    "cursor-pointer",
+                    buttonVariants({ size: "sm", variant: "ghost" })
+                  )}
                 >
                   Sign up
-                </Link>
+                </button>
 
-                <Link
-                  href="/api/auth/login"
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "ghost",
-                  })}
+                <button
+                  onClick={() => handleAuthClick("/api/auth/login")}
+                  className={cn(
+                    "cursor-pointer",
+                    buttonVariants({ size: "sm", variant: "ghost" })
+                  )}
                 >
                   Login
-                </Link>
+                </button>
 
                 <div className="h-8 w-px bg-zinc-200 hidden sm:block" />
 
