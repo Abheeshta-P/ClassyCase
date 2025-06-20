@@ -1,9 +1,13 @@
-import React from 'react'
+import { Suspense } from "react";
+import ThankYou from "./ThankYou";
+import { Loading } from "../Loading";
 
-function Page() {
+const Page = () => {
   return (
-    <div>Thanks kajal piyaaa</div>
-  )
-}
+    <Suspense fallback = {<Loading/>}>
+      <ThankYou />
+    </Suspense>
+  );
+};
 
-export default Page
+export default Page;

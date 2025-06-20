@@ -70,6 +70,8 @@ function Navbar() {
   };
 
   const handleConfirmSignOut = () => {
+    localStorage.removeItem("configurationId");
+    localStorage.removeItem("postLoginRedirectPath");
     localStorage.setItem("postLogoutRedirectHome", "true");
     router.replace("/api/auth/logout");
   };

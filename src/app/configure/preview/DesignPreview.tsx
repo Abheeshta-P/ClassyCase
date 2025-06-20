@@ -56,11 +56,27 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
       else throw new Error("Unable to retrieve payment URL");
     },
     onError: (err) => {
-      console.error("Checkout session error:", err); 
-      toast.error("Something went wrong", {
-        description:
-          "There was a problem creating your checkout session. Please try again.",
-      });
+      if (err instanceof Error) {
+        if (err.message === "You need to be logged in") {
+          localStorage.setItem("configurationId", id); 
+          setIsLoginModalOpen(true);
+        } else if (err.message === "No such configuration found") {
+          toast.error("Configuration not found", {
+            description:
+              "The selected phone case configuration could not be loaded.",
+          });
+          router.push("/configure/upload");
+        } else {
+          toast.error("Something went wrong", {
+            description:
+              "There was a problem creating your checkout session. Please try again.",
+          });
+        }
+      } else {
+        toast.error("Something went wrong", {
+          description: "An unknown error occurred. Please try again.",
+        });
+      }
     },
   });
 
