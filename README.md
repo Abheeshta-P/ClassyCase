@@ -53,7 +53,7 @@ Follow the steps below to run **ClassyCase** locally:
 ```bash
 git clone https://github.com/yourusername/classycase.git
 cd classycase
-
+```
 
 ### 2. Install Dependencies
 
