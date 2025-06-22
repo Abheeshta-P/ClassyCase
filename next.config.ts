@@ -11,30 +11,37 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
+    // Determine the allowed origin based on the environment
+    let allowedOrigin: string;
+
+    if (process.env.NODE_ENV === "development") {
+      // In development, allow requests from localhost
+      allowedOrigin = "http://localhost:3000"; 
+    } else {
+      // In production, allow requests from your Vercel domain
+      allowedOrigin = "https://classycase.vercel.app";
+    }
+
     return [
       {
-        source: "/api/:path*", // This rule applies to all paths under /api/
+        // This rule applies to all paths under /api/auth
+        source: "/api/auth/:path*",
         headers: [
-          // Allow credentials (e.g., cookies, authorization headers)
-          { key: "Access-Control-Allow-Credentials", value: "true" },
-          // In production, it's best to be explicit with your domain.
           {
             key: "Access-Control-Allow-Origin",
-            value:
-              process.env.NODE_ENV === "development"
-                ? "http://localhost:3000"
-                : "https://classycase.vercel.app",
+            value: allowedOrigin, // Dynamically set origin
           },
-          // Allow common HTTP methods for API routes, including OPTIONS for preflight
           {
             key: "Access-Control-Allow-Methods",
-            value: "GET,DELETE,PATCH,POST,PUT,OPTIONS",
+            value: "GET, POST, PUT, DELETE, OPTIONS",
           },
-          // Allow common headers that might be sent with requests
           {
             key: "Access-Control-Allow-Headers",
-            value:
-              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+            value: "Content-Type, Authorization, next-router-prefetch",
+          },
+          {
+            key: "Access-Control-Allow-Credentials",
+            value: "true",
           },
         ],
       },
