@@ -61,6 +61,7 @@ function Page() {
           onDropAccepted={onDropAccepted}
           onDragEnter={() => setIsDragOver(true)}
           onDragLeave={() => setIsDragOver(false)}
+          disabled={isUploading}
           accept={{
             "image/png": [".png"],
             "image/jpeg": [".jpeg"],

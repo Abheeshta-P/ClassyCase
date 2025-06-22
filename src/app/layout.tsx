@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
 import { Recursive } from 'next/font/google'
 import "./globals.css";
 import { Navbar } from "@/components";
 import Footer from "@/components/organisms/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/components/atoms/Providers";
+import { constructMetadata } from "@/lib/utils";
 
 const recursive = Recursive({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: "ClassyCase - Custom high-quality phone cases",
-  description: "Shop the custom generated back covers for your phone",
-};
+export const metadata = constructMetadata();
 
 export default function RootLayout({
   children,
