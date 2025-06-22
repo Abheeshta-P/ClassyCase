@@ -73,7 +73,7 @@ export default function NavbarContent() {
     localStorage.removeItem("configurationId");
     localStorage.removeItem("postLoginRedirectPath");
     localStorage.setItem("postLogoutRedirectHome", "true");
-    router.replace("/api/auth/logout");
+    router.push("/api/auth/logout");
   };
 
   const isAdmin = user?.email === ADMIN_EMAIL;
@@ -95,7 +95,7 @@ export default function NavbarContent() {
             <AlertDialogTrigger asChild>
               <Link
                 href="/api/auth/logout"
-                // prefetch={false}
+                prefetch={false}
                 onClick={handleOpenSignOutConfirm}
                 className={buttonVariants({
                   size: "sm",
