@@ -95,7 +95,7 @@ export default function NavbarContent() {
             <AlertDialogTrigger asChild>
               <Link
                 href="/api/auth/logout"
-                prefetch={false}
+                // prefetch={false}
                 onClick={handleOpenSignOutConfirm}
                 className={buttonVariants({
                   size: "sm",
