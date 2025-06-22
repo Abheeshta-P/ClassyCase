@@ -26,7 +26,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
   // Use a ref to prevent immediate re-triggering on every render
-  const isInitialLoad = useRef(true); 
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     setShowConfetti(true);
@@ -58,7 +58,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
     onError: (err) => {
       if (err instanceof Error) {
         if (err.message === "You need to be logged in") {
-          localStorage.setItem("configurationId", id); 
+          localStorage.setItem("configurationId", id);
           setIsLoginModalOpen(true);
         } else if (err.message === "No such configuration found") {
           toast.error("Configuration not found", {
@@ -100,7 +100,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
       // Trigger the payment session creation
       CreatePaymentSession({ configId: configuration.id });
     }
-  }, [user, CreatePaymentSession, configuration.id]); 
+  }, [user, CreatePaymentSession, configuration.id]);
 
   const handleCheckout = () => {
     if (user) {
@@ -119,7 +119,20 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
     }
   };
 
-  if (isLoading) return <Loading />;
+  if (isLoading)
+    return (
+      <>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute inset-0 overflow-hidden flex justify-center"
+        >
+          <Confetti
+            active={showConfetti}
+            config={{ elementCount: 300, spread: 150 }}
+          />
+        </div>
+      </>
+    );
 
   return (
     <>
