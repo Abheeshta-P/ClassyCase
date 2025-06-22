@@ -1,4 +1,4 @@
-import { RESEND_API_KEY, RESEND_EMAIL, STRIPE_WEBHOOK_SECRET } from "@/app/config/config";
+import { ADMIN_EMAIL, RESEND_API_KEY, RESEND_EMAIL, STRIPE_WEBHOOK_SECRET } from "@/app/config/config";
 import { db } from "@/db";
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
@@ -6,13 +6,16 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { CreateEmailResponse, Resend } from "resend";
 import OrderReceivedEmail from "@/components/emails/OrderReceivedEmail";
+import { transporter } from "@/lib/nodemailer";
+import { render } from "@react-email/render";
+import { SentMessageInfo } from "nodemailer";
 
 const resend = new Resend(RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
     const body = await req.text();
-    let sent: string | CreateEmailResponse = "nahhh";
+    let sent: string | SentMessageInfo = "nahhh";
     // stripe sends signature if it sends webhooks
     const signature = (await headers()).get("stripe-signature");
 
@@ -94,27 +97,46 @@ export async function POST(req: Request) {
         },
       });
 
-      console.log(updatedOrder)
-      // email
-       sent = await resend.emails.send({
-        from: `ClassyCase <${RESEND_EMAIL}>`,
-        to: [event.data.object.customer_details.email],
-        subject: "Thanks for your Classy order!",
-        react: OrderReceivedEmail({
-          orderId,
-          orderDate: updatedOrder.createdAt.toLocaleDateString(),
-          // @ts-ignore
-          shippingAddress: {
-            name: session.customer_details!.name!,
-            city: shippingAddress!.city!,
-            country: shippingAddress!.country!,
-            postalCode: shippingAddress!.postal_code!,
-            street: shippingAddress!.line1!,
-            state: shippingAddress!.state,
-          },
-        }),
-      });
-      console.log(sent)
+      const customerEmail = event.data.object.customer_details?.email;
+      if (customerEmail) {
+        try {
+          const emailHtml = await render(
+            OrderReceivedEmail({
+              orderId: updatedOrder.id,
+              orderDate: updatedOrder.createdAt.toLocaleDateString(),
+              //@ts-ignore
+              shippingAddress: {
+                name: session.customer_details!.name!,
+                city: shippingAddress!.city!,
+                country: shippingAddress!.country!,
+                postalCode: shippingAddress!.postal_code!,
+                street: shippingAddress!.line1!,
+                state: shippingAddress!.state,
+              },
+            })
+          );
+
+          sent = await transporter.sendMail({
+            from: `ClassyCase <${ADMIN_EMAIL}>`, // Use your Gmail address here
+            to: customerEmail,
+            subject: "Thanks for your Classy order!",
+            html: emailHtml,
+          });
+        } catch (emailError) {
+          console.error(
+            "Error sending email via Nodemailer/Gmail:",
+            emailError
+          );
+          if (emailError instanceof Error) {
+            console.error(
+              "Nodemailer/Gmail Error Message:",
+              emailError.message
+            );
+          }
+        }
+      } else {
+        console.warn("No customer email available to send order confirmation.");
+      }
     }
     return NextResponse.json({ result: event, ok: true, sent: sent }); 
   } catch (error) {

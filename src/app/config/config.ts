@@ -5,3 +5,4 @@ export const STRIPE_SECRET_KEY = String(process.env.STRIPE_SECRET_KEY);
 export const STRIPE_WEBHOOK_SECRET = String(process.env.STRIPE_WEBHOOK_SECRET);
 export const RESEND_API_KEY = String(process.env.RESEND_API_KEY);
 export const RESEND_EMAIL = String(process.env.RESEND_EMAIL);
+export const EMAIL_PASSWORD = String(process.env.EMAIL_PASSWORD);
