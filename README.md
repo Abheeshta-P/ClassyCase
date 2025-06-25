@@ -13,7 +13,7 @@
 
 * ✅ **Complete E-Commerce Flow** (Configure → Pay → Thank You)
 * ✅ **Beautiful, Conversion-Focused Landing Page**
-* ✅ **Admin Dashboard for Order & Product Management**
+* ✅ **Admin Only Dashboard for Order & Product Management**
 * ✅ **Drag-and-Drop File Uploads via UploadThing**
 * ✅ **Live Phone Case Configurator with Preview**
 * ✅ **Kinde Authentication & Session Management**
@@ -101,14 +101,14 @@ npm run dev
 ### 🖼️ Landing Page  
 ![Landing Page](https://github.com/user-attachments/assets/9544ad92-1082-4a64-b213-d9edad6378b4)
 
+### 🖼️ Upload Image 
+![Upload mage Page](https://github.com/user-attachments/assets/6225ed0c-f3ec-4ec1-8839-94154fa666d2)
 
-### 🎨 Case Configurator  
-![Configurator](https://github.com/user-attachments/assets/8bb914e0-6d4e-435f-bb39-9fcdd1458bcf)
-
+### 🎨 Preview of Case Configuration
+![Configuration Preview](https://github.com/user-attachments/assets/8bb914e0-6d4e-435f-bb39-9fcdd1458bcf)
 
 ### 🛠️ Admin Dashboard  
-![Admin Dashboard](https://github.com/user-attachments/assets/828cdaa7-0d36-4b2f-a4f3-f3c7d9463923)
-
+![Admin Dashboard](https://github.com/user-attachments/assets/77e8a6cb-0454-4c11-9097-973055a9a72a)
 
 ### ✅ Thank You Page  
 ![Thankyou](https://github.com/user-attachments/assets/00118fc1-2cde-49b8-90d5-a823fe47a045)
@@ -117,5 +117,7 @@ npm run dev
 
 ## 📜 License
 
-All rights reserved © \[ClassyCase - Abheeshta P]
+All rights reserved ©ClassyCase - Abheeshta P
 This project is not open-source and should not be reused or redistributed without explicit permission.
+
+> All rights are reserved.
