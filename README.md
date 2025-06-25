@@ -98,7 +98,7 @@ npm run dev
 
 ## 📷 Screenshots
 
-### 🖼️ Landing Page  
+### 🚀 Landing Page  
 ![Landing Page](https://github.com/user-attachments/assets/9544ad92-1082-4a64-b213-d9edad6378b4)
 
 ### 🖼️ Upload Image 
@@ -120,4 +120,3 @@ npm run dev
 All rights reserved ©ClassyCase - Abheeshta P
 This project is not open-source and should not be reused or redistributed without explicit permission.
 
-> All rights are reserved.
