@@ -43,58 +43,102 @@
 | **Nodemailer**   | Node.js module to send email confirmations with server-side logic        |
 
 
+## **📦 Getting Started**
 
-## 📦 Getting Started
+To get a copy of the project up and running on your local machine for development, follow one of the options below.
 
-Follow the steps below to run **ClassyCase** locally:
+### **Prerequisites**
 
-### 1. Clone the Repository
+* **Node.js**: Version 18.x or later.  
+* **npm**: Comes with Node.js.  
+* **Git**: For cloning the repository. 
+* **Accounts & API Keys**:
+  - ✅ [Kinde Auth](https://kinde.com/) account and application setup (client ID, secret,redirect URIs etc)
+  - ✅ [UploadThing](https://uploadthing.com/) project with API keys
+  - ✅ [Stripe](https://dashboard.stripe.com/) account with secret key and webhook secret 
+* **For Option 1 (With Docker Compose):**  
+  * **Docker Desktop**: Download from [Docker's official website](https://www.docker.com/products/docker-desktop/).
 
-```bash
-git clone https://github.com/yourusername/classycase.git
-cd classycase
-```
+### **Option 1: With Docker Compose (Recommended)**
 
-### 2. Install Dependencies
+This sets up a consistent development environment, including a local PostgreSQL database.
 
-```bash
-npm install
-```
+1. **Clone the repository:**  
+   ``` bash
+   git clone https://github.com/your-username/classycase.git # Replace with your actual repo URL  
+   cd classycase
+   ```
 
-### 3. Set Up Environment Variables
+2. **Create your local environment file:**  
+   ``` bash
+   cp .env.example .env
+   ```
 
-Create a `.env` file and add the required credentials:
+   **Open the new .env file** and fill in required values (API keys, secrets for Kinde, UploadThing, Stripe, etc.). DATABASE\_URL for the local PostgreSQL is automatically set in docker-compose.yml.  
+3. **Start the Docker Compose services:** 
+   ``` bash 
+   docker-compose up --build
+    ```
+   * \--build forces image rebuild (first time/Dockerfile changes). Use docker-compose up \-d for detached mode.  
+4. **Run Prisma Migrations:** 
+   Once the Docker services are running and your database container is up, you need to apply your database schema migrations to create the necessary tables.  
+   ``` bash
+   docker-compose exec nextjs npx prisma migrate dev --name init
+   ```
+   This command runs npx prisma migrate dev \--name init *inside* the nextjs container, ensuring it uses the correct database connection defined in docker-compose.yml to create your schema.  
+5. **Access your application:** 
+    ``` bash
+    http://localhost:3000  
+    ```
+6. **Stopping services:** 
+   ``` bash 
+   docker-compose down # Stops containers, keeps DB data  
+   docker-compose down --volumes # Stops containers, removes DB data
+   ```
 
-```env
-NEXT_PUBLIC_SERVER_URL=
-DATABASE_URL=
-KINDE_CLIENT_ID=
-KINDE_CLIENT_SECRET=
-KINDE_ISSUER_URL=
-KINDE_SITE_URL=
-KINDE_POST_LOGOUT_REDIRECT_URL=
-KINDE_POST_LOGIN_REDIRECT_UR=
-NEXT_PUBLIC_ADMIN_EMAIL=
-UPLOADTHING_TOKEN=
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-EMAIL_PASSWORD=
-```
+### **Option 2: Without Docker (Traditional npm run dev)**
 
-### 4. Set Up Prisma
+This option requires manual management of Node.js, PostgreSQL, and other dependencies on your local machine.
 
-```bash
-npx prisma generate
-npx prisma migrate dev --name init
-```
+1. **Clone the repository:**  
+    ``` bash
+    git clone https://github.com/your-username/classycase.git # Replace with your actual repo URL  
+    cd classycase
+    ```
 
-### 5. Run the App
+2. **Install Node.js dependencies:** 
+   ``` bash 
+   npm install
+   ```
 
-```bash
-npm run dev
-```
+3. **Database Setup:**  
+   * **Using a Hosted Service (e.g., Neon, Supabase, PlanetScale):**  
+     * Sign up for a database service and obtain your connection string.  
+   * **Using a Local PostgreSQL (Manually):**  
+     * Install PostgreSQL on your machine.  
+     * Create a database and a user with permissions.  
+     * Ensure your PostgreSQL server is running.  
+4. **Create your local environment file:**  
+   ``` bash
+   cp .env.example .env
+   ```
 
+   **Open the new .env file** and fill in all required values, including your DATABASE\_URL (from your hosted service or local PostgreSQL).  
+5. **Run Prisma migrations:**  
+   You need to apply your database schema migrations to create the necessary tables.  
+   ``` bash
+   npx prisma migrate dev --name init
+   ```
 
+6. **Start the development server:**  
+   ```bash
+   npm run dev
+   ```
+
+7. **Access your application:** 
+    ``` bash
+    http://localhost:3000  
+    ```
 
 ## 📷 Screenshots
 
