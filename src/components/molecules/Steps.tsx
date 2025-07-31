@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { STEPS } from "@/app/constants/const";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 function Steps() {
   const pathname = usePathname();
@@ -37,7 +38,10 @@ function Steps() {
                 )}
               >
                 <span className="flex-shrink-0">
-                  <img
+                  <Image
+                    alt="steps"
+                    width={500}
+                    height={500}
                     src={imgPath}
                     className={cn(
                       "flex h-20 w-20 object-contain items-center justify-center"

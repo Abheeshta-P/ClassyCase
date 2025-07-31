@@ -23,6 +23,7 @@ const Phone = ({ imgSrc, className, dark = false, ...props }: PhoneProps) => {
         }
         className="pointer-events-none z-50 select-none"
         alt="phone image"
+        fetchPriority="high"
       />
 
       <div className="absolute -z-10 inset-0">
@@ -30,6 +31,7 @@ const Phone = ({ imgSrc, className, dark = false, ...props }: PhoneProps) => {
           className="object-cover min-w-full min-h-full"
           src={imgSrc}
           alt="overlaying phone image"
+          loading="lazy"
         />
       </div>
     </div>
