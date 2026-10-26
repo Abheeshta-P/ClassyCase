@@ -9,6 +9,7 @@ import {
   ShippingAddress,
   User,
 } from "@prisma/client";
+import { z } from "zod";
 
 type FullOrder = Order & {
   configuration: Configuration; 
@@ -24,9 +25,11 @@ type GetPaymentStatusResponse =
   | { success: false; error: "NOT_LOGGED_IN" } // User not logged in
   | { success: false; error: "ORDER_NOT_FOUND" }; // Order not found or not belonging to user
 
-export const getPaymentStatus = async ({
-  orderId,
-}: {
+const getPaymentStatusSchema = z.object({
+  orderId: z.string().min(1, "Order ID is required"),
+});
+
+export const getPaymentStatus = async (rawInput: {
   orderId: string;
 }): Promise<GetPaymentStatusResponse> => {
   const { getUser } = getKindeServerSession();
@@ -35,6 +38,8 @@ export const getPaymentStatus = async ({
   if (!user?.id || !user.email) {
     return { success: false, error: "NOT_LOGGED_IN" };
   }
+
+  const { orderId } = getPaymentStatusSchema.parse(rawInput);
 
   const order = await db.order.findFirst({
     where: { id: orderId, userId: user.id },

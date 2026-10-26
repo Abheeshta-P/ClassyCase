@@ -7,21 +7,30 @@ import {
   CaseMaterial,
   PhoneModel,
 } from "@prisma/client";
+import { z } from "zod";
 
-export type saveConfigArgs = {
-  color: CaseColor;
-  finish: CaseFinish;
-  material: CaseMaterial;
-  model: PhoneModel;
-  configId: string;
-};
-export async function saveConfig({
-  color,
-  finish,
-  material,
-  model,
-  configId,
-}: saveConfigArgs) {
+export const saveConfigSchema = z.object({
+  configId: z.string().min(1, "Configuration ID is required"),
+  color: z.nativeEnum(CaseColor),
+  finish: z.nativeEnum(CaseFinish),
+  material: z.nativeEnum(CaseMaterial),
+  model: z.nativeEnum(PhoneModel),
+});
+
+export type saveConfigArgs = z.infer<typeof saveConfigSchema>;
+
+export async function saveConfig(args: saveConfigArgs) {
+  const { color, finish, material, model, configId } =
+    saveConfigSchema.parse(args);
+
+  const existingConfig = await db.configuration.findUnique({
+    where: { id: configId },
+  });
+
+  if (!existingConfig) {
+    throw new Error("No such configuration found");
+  }
+
   await db.configuration.update({
     where: { id: configId },
     data: { color, finish, material, model },

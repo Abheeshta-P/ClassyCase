@@ -6,18 +6,36 @@ import { db } from "@/db";
 import { stripe } from "@/lib/stripe";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Order } from "@prisma/client";
+import { z } from "zod";
 
-export async function createCheckoutSession({
-  configId,
-}: {
+const createCheckoutSessionSchema = z.object({
+  configId: z.string().min(1, "Configuration ID is required"),
+});
+
+export async function createCheckoutSession(rawInput: {
   configId: string;
 }) {
+  const { configId } = createCheckoutSessionSchema.parse(rawInput);
+
   const configuration = await db.configuration.findUnique({
     where: { id: configId },
   });
 
   if (!configuration) {
     throw new Error("No such configuration found");
+  }
+
+  // Validate configuration completeness
+  if (
+    !configuration.model ||
+    !configuration.color ||
+    !configuration.material ||
+    !configuration.finish ||
+    !configuration.croppedImageURL
+  ) {
+    throw new Error(
+      "Configuration is incomplete. Please finish customizing your case before checking out."
+    );
   }
 
   const { getUser } = getKindeServerSession();
@@ -29,36 +47,46 @@ export async function createCheckoutSession({
 
   const { finish, material } = configuration;
 
+  // Calculate pricing strictly on server from trusted price constants
   let price = BASE_PRICE;
   if (finish === "textured") price += PRODUCT_PRICES.finish.textured;
   if (material === "polycarbonate")
     price += PRODUCT_PRICES.material.polycarbonate;
 
-  // If the present confi/case already ordered then no need to order it again
+  const calculatedAmount = price / 100;
+
+  // Prevent unexpected price mutation or reuse of already paid orders
   let order: Order | undefined = undefined;
 
-  const exisitingOrder = await db.order.findFirst({
-    // logged in user's all orders
+  const existingUnpaidOrder = await db.order.findFirst({
     where: {
       userId: user.id,
       configurationId: configId,
+      isPaid: false,
     },
   });
 
-  if (exisitingOrder) {
-    order = exisitingOrder;
-    console.log("One more order of same design");
+  if (existingUnpaidOrder) {
+    // If the price was altered or prices updated, ensure the order amount strictly matches server pricing
+    if (existingUnpaidOrder.amount !== calculatedAmount) {
+      order = await db.order.update({
+        where: { id: existingUnpaidOrder.id },
+        data: { amount: calculatedAmount },
+      });
+    } else {
+      order = existingUnpaidOrder;
+    }
   } else {
     order = await db.order.create({
       data: {
-        amount: price / 100,
+        amount: calculatedAmount,
         userId: user.id,
         configurationId: configId,
       },
     });
   }
 
-  // create a product in stripe
+  // Create product in stripe with verified server price
   const product = await stripe.products.create({
     name: "Custom phone case",
     images: [configuration.imageURL],
@@ -68,7 +96,7 @@ export async function createCheckoutSession({
     },
   });
 
-  // create payment session, with the order id
+  // Create payment session, bound to the verified order ID
   const stripeSession = await stripe.checkout.sessions.create({
     success_url: `${SERVER_URL}/thank-you?orderId=${order.id}`,
     cancel_url: `${SERVER_URL}/configure/preview?id=${configId}`,
@@ -90,6 +118,5 @@ export async function createCheckoutSession({
     line_items: [{ price: product.default_price as string, quantity: 1 }],
   });
 
-  // Hosted checkout page by stripe
   return { url: stripeSession.url };
 }
