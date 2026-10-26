@@ -23,7 +23,7 @@ export async function createCheckoutSession({
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
-  if (!user) {
+  if (!user || !user.id || !user.email) {
     throw new Error("You need to be logged in");
   }
 
