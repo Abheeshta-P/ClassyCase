@@ -109,7 +109,7 @@ async function Page() {
                 <CardFooter>
                   <Progress
                     value={
-                      ((lastWeekSum._sum.amount ?? 0) * 100) / MONTHLY_GOAL
+                      ((lastMonthSum._sum.amount ?? 0) * 100) / MONTHLY_GOAL
                     }
                   />
                 </CardFooter>
