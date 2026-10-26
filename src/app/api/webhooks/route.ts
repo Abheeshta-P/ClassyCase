@@ -9,22 +9,21 @@ import { transporter } from "@/lib/nodemailer";
 import { render, pretty } from "@react-email/render";
 import { SentMessageInfo } from "nodemailer";
 
-
 export async function POST(req: Request) {
   try {
     const body = await req.text();
     let sent: string | SentMessageInfo = "nahhh";
-    // stripe sends signature if it sends webhooks
+    
+    // Stripe sends signature with webhook payloads
     const signature = (await headers()).get("stripe-signature");
 
     if (!signature) {
-      // no signature in header
       return new Response("Invalid signature", {
         status: 400,
       });
     }
 
-    // validate the signature
+    // Validate webhook signature
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
@@ -32,7 +31,7 @@ export async function POST(req: Request) {
     );
 
     if (event.type === "checkout.session.completed") {
-      // user payed
+      // user paid
       if (!event.data.object.customer_details?.email) {
         throw new Error("Missing user email");
       }
@@ -53,16 +52,43 @@ export async function POST(req: Request) {
         throw new Error("Invalid request metadata");
       }
 
-      // Ensure shippingAddress is always present, as it was collected
+      // 1. Verify order existence and ownership
+      const existingOrder = await db.order.findUnique({
+        where: { id: orderId },
+      });
+
+      if (!existingOrder) {
+        throw new Error("Order not found");
+      }
+
+      if (existingOrder.userId !== userId) {
+        throw new Error("User ID mismatch for order");
+      }
+
+      // 2. Event Idempotency & Duplicate-Email Prevention:
+      // If the order has already been marked as paid, return 200 OK immediately.
+      // This prevents duplicate database updates (addresses) and duplicate email dispatch on webhook retries.
+      if (existingOrder.isPaid) {
+        console.log(
+          `[Webhook] Order ${orderId} has already been processed and marked as paid. Skipping duplicate processing.`
+        );
+        return NextResponse.json({
+          message: "Order already processed",
+          ok: true,
+          isDuplicate: true,
+        });
+      }
+
+      // Ensure shipping details are present
       const shippingAddress =
         session.collected_information?.shipping_details?.address;
-      const customerName = session.customer_details?.name; // Get customer name once
+      const customerName = session.customer_details?.name;
 
       if (!shippingAddress || !customerName) {
         throw new Error("Missing shipping details or customer name in session");
       }
 
-      // Otherwise, default to using the shipping address as the billing address.
+      // Default billing address to shipping address if not separately provided
       const billingAddress =
         session.customer_details?.address || shippingAddress;
 
@@ -98,24 +124,26 @@ export async function POST(req: Request) {
       const customerEmail = event.data.object.customer_details?.email;
       if (customerEmail) {
         try {
-          const emailHtml = await pretty(await render(
-            OrderReceivedEmail({
-              orderId: updatedOrder.id,
-              orderDate: updatedOrder.createdAt.toLocaleDateString(),
-              //@ts-ignore
-              shippingAddress: {
-                name: session.customer_details!.name!,
-                city: shippingAddress!.city!,
-                country: shippingAddress!.country!,
-                postalCode: shippingAddress!.postal_code!,
-                street: shippingAddress!.line1!,
-                state: shippingAddress!.state,
-              },
-            }))
+          const emailHtml = await pretty(
+            await render(
+              OrderReceivedEmail({
+                orderId: updatedOrder.id,
+                orderDate: updatedOrder.createdAt.toLocaleDateString(),
+                //@ts-ignore
+                shippingAddress: {
+                  name: session.customer_details!.name!,
+                  city: shippingAddress!.city!,
+                  country: shippingAddress!.country!,
+                  postalCode: shippingAddress!.postal_code!,
+                  street: shippingAddress!.line1!,
+                  state: shippingAddress!.state,
+                },
+              })
+            )
           );
 
           sent = await transporter.sendMail({
-            from: `ClassyCase <${ADMIN_EMAIL}>`, 
+            from: `ClassyCase <${ADMIN_EMAIL}>`,
             to: customerEmail,
             subject: "Thanks for your Classy order!",
             html: emailHtml,
@@ -136,7 +164,8 @@ export async function POST(req: Request) {
         console.warn("No customer email available to send order confirmation.");
       }
     }
-    return NextResponse.json({ result: event, ok: true, sent: sent }); 
+
+    return NextResponse.json({ result: event, ok: true, sent });
   } catch (error) {
     console.error("Stripe Webhook Error:", error);
 
