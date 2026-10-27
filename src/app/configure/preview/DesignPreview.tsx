@@ -38,9 +38,10 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
     (supportedColor) => supportedColor.value === color
   )?.tw;
 
-  const { label: modelLabel } = MODELS.options.find(
+  const modelOption = MODELS.options.find(
     ({ value }) => value === model
-  )!;
+  );
+  const modelLabel = modelOption ? modelOption.label : "Custom";
 
   let totalPrice = BASE_PRICE;
   if (material === "polycarbonate")
@@ -154,7 +155,7 @@ function DesignPreview({ configuration }: { configuration: Configuration }) {
         <div className="md:col-span-4 lg:col-span-3 md:row-span-2 md:row-end-2">
           <Phone
             className={cn(`bg-${tw}`, "max-w-[150px] md:max-w-full")}
-            imgSrc={configuration.croppedImageURL!}
+            imgSrc={configuration.croppedImageURL || configuration.imageURL}
           />
         </div>
 
