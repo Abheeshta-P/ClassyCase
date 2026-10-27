@@ -6,16 +6,16 @@ ClassyCase is an end-to-end e-commerce platform that allows customers to design,
 
 
 
-## Key Features
+## Features
 
-- **Interactive Case Configurator**: Real-time canvas preview allowing users to upload artwork, adjust dimensions, and select case finishes, materials, and colors.
-- **Secure Authentication & Authorization**: Integrated with Kinde Auth, enforcing session verification and role-based access controls across all server actions.
-- **Independent Authorization Checks**: Protected admin dashboard and administrative server operations secured against unauthorized execution.
-- **Object-Level Ownership Verification**: Enforces user ownership across configurations and order lookups to prevent unauthorized modifications.
-- **Tamper-Resistant Pricing**: Order totals are calculated and validated strictly on the server from authoritative product pricing models.
-- **Idempotent Payment Processing**: Stripe webhook integration with signature validation, event idempotency, and duplicate-event suppression.
-- **Transactional Notifications**: Automated order confirmation emails rendered with React Email and dispatched via Nodemailer.
-- **Direct File Uploads**: Optimized image upload pipeline powered by UploadThing and Sharp for metadata extraction.
+- **Custom Artwork Upload**: Drag-and-drop or select photos with instant upload progress and automatic image dimension processing.
+- **Interactive Case Customizer**: Freely position, resize, and rotate custom artwork directly over realistic phone mockups.
+- **Model, Material & Finish Options**: Support for iPhone models and the Samsung Galaxy S25, with choices between silicone or polycarbonate, smooth or textured finishes, and distinct case colors.
+- **Live Design Preview**: Real-time 3D-style phone case preview with celebratory animations and dynamic price breakdowns.
+- **Fast & Secure Checkout**: Integrated Stripe payment flow supporting major credit cards, mobile wallets, and international shipping addresses.
+- **Order Confirmation & Email Receipts**: Post-purchase confirmation page accompanied by automated transactional email receipts.
+- **Saved Designs**: Seamless state persistence allowing customers to save their case design and resume checkout after signing in.
+- **Admin Management Dashboard**: Built-in operations dashboard to monitor revenue metrics, review recent orders, and update fulfillment statuses.
 
 
 
@@ -32,7 +32,7 @@ ClassyCase is an end-to-end e-commerce platform that allows customers to design,
 ## Technology Stack
 
 | Layer | Technology | Purpose |
-| : | : | : |
+| :--- | :--- | :--- |
 | **Framework** | Next.js 15 (App Router) | Server-side rendering, API routes, and Server Actions |
 | **Language** | TypeScript | End-to-end type safety |
 | **Styling** | Tailwind CSS & shadcn/ui | Component design system and responsive UI |
@@ -51,7 +51,7 @@ ClassyCase is an end-to-end e-commerce platform that allows customers to design,
 Create a `.env` file in the project root based on `.env.example`:
 
 | Variable | Description |
-| : | : |
+| :--- | :--- |
 | `NEXT_PUBLIC_SERVER_URL` | Application base URL (e.g., `http://localhost:3000`) |
 | `DATABASE_URL` | PostgreSQL connection string (Neon, Supabase, or local) |
 | `KINDE_CLIENT_ID` | Kinde application client identifier |
