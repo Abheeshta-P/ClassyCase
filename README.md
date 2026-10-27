@@ -1,166 +1,189 @@
-<h1 align="center"> 📱 ClassyCase </h1>
+# ClassyCase
 
-### *A Modern Fullstack E-Commerce Platform for Custom Phone Cases*
+### Modern Full-Stack E-Commerce Platform for Custom Phone Cases
 
-
-## 🛠 Overview
-
-**ClassyCase** is a sleek, full-featured e-commerce web app that allows users to design and purchase **custom phone cases**. Built with the latest **Next.js 15 App Router**, **PostgreSQL**, and **TypeScript**, the platform offers smooth UX, intuitive case configuration, secure payment, and admin oversight — all wrapped in a modern, mobile-first UI.
+ClassyCase is an end-to-end e-commerce platform that allows customers to design, customize, preview, and purchase high-quality custom phone cases. Built with Next.js 15 App Router, PostgreSQL, Prisma ORM, and TypeScript, the platform delivers an intuitive user experience with enterprise-grade security, live configuration previews, secure payment processing, and administrative controls.
 
 
 
-## 🚀 Features
+## Key Features
 
-* ✅ **Complete E-Commerce Flow** (Configure → Pay → Thank You)
-* ✅ **Beautiful, Conversion-Focused Landing Page**
-* ✅ **Admin Only Dashboard for Order & Product Management**
-* ✅ **Drag-and-Drop File Uploads via UploadThing**
-* ✅ **Live Phone Case Configurator with Preview**
-* ✅ **Kinde Authentication & Session Management**
-* ✅ **Stripe Payments Integration**
-* ✅ **Transactional Emails (Order Confirmation) via React Email & Nodemailer**
-* ✅ **Type-Safe Validation with Zod**
-* ✅ **100% TypeScript**
-* ✅ **Clean, Responsive, Accessible UI (shadcn/ui + Tailwind)**
+- **Interactive Case Configurator**: Real-time canvas preview allowing users to upload artwork, adjust dimensions, and select case finishes, materials, and colors.
+- **Secure Authentication & Authorization**: Integrated with Kinde Auth, enforcing session verification and role-based access controls across all server actions.
+- **Independent Authorization Checks**: Protected admin dashboard and administrative server operations secured against unauthorized execution.
+- **Object-Level Ownership Verification**: Enforces user ownership across configurations and order lookups to prevent unauthorized modifications.
+- **Tamper-Resistant Pricing**: Order totals are calculated and validated strictly on the server from authoritative product pricing models.
+- **Idempotent Payment Processing**: Stripe webhook integration with signature validation, event idempotency, and duplicate-event suppression.
+- **Transactional Notifications**: Automated order confirmation emails rendered with React Email and dispatched via Nodemailer.
+- **Direct File Uploads**: Optimized image upload pipeline powered by UploadThing and Sharp for metadata extraction.
 
 
 
-## 💻 Tech Stack
+## Architecture & Security Highlights
 
-| Technology       | Description                                                              |
-| ---------------- | ------------------------------------------------------------------------ |
-| **Next.js 15**   | React framework with App Router for SSR, routing, and fullstack features |
-| **TypeScript**   | Static typing for safety, refactors, and DX                              |
-| **Tailwind CSS** | Utility-first CSS framework for building sleek UIs fast                  |
-| **PostgreSQL**   | Robust relational database for structured, scalable data                 |
-| **Prisma**       | Type-safe ORM for PostgreSQL, with migration and query ease              |
-| **Kinde Auth**   | Plug-and-play authentication and user management                         |
-| **shadcn/ui**    | Accessible and customizable component library for modern UIs             |
-| **Zod**          | TypeScript-first schema validation for API routes and forms              |
-| **UploadThing**  | Simple file uploads with drag-and-drop, integrated into Next.js          |
-| **Stripe**       | Powerful and secure payment gateway integration                          |
-| **React Email**  | Build responsive transactional emails in React                           |
-| **Nodemailer**   | Node.js module to send email confirmations with server-side logic        |
+- **Server-Side Authorization**: Administrative server actions (e.g., updating order fulfillment status) independently verify caller identity against authorized administrator credentials.
+- **Order State Machine**: Enforces strict status transition rules (`awaiting_shipment` -> `shipped` -> `fulfilled`) to prevent invalid lifecycle changes.
+- **Configuration & Order Scoping**: Lookups and updates to configurations and orders are scoped strictly to the authenticated user ID.
+- **Webhook Idempotency**: Stripe webhook handlers track paid status to prevent redundant order processing, duplicate address creation, and repeated confirmation emails on retry events.
+- **Strict Input Validation**: All server action arguments, parameters, and database queries are validated with Zod schemas.
 
 
-## **📦 Getting Started**
 
-To get a copy of the project up and running on your local machine for development, follow one of the options below.
+## Technology Stack
 
-### **Prerequisites**
+| Layer | Technology | Purpose |
+| : | : | : |
+| **Framework** | Next.js 15 (App Router) | Server-side rendering, API routes, and Server Actions |
+| **Language** | TypeScript | End-to-end type safety |
+| **Styling** | Tailwind CSS & shadcn/ui | Component design system and responsive UI |
+| **Database** | PostgreSQL | Relational data persistence |
+| **ORM** | Prisma | Schema modeling, migrations, and type-safe query building |
+| **Authentication** | Kinde Auth | Session management, OAuth, and authentication guards |
+| **Payments** | Stripe | Hosted checkout sessions, customer billing, and webhooks |
+| **File Storage** | UploadThing & Sharp | Image upload infrastructure and image processing |
+| **Email Delivery** | React Email & Nodemailer | Templating and transactional email dispatch |
+| **Validation** | Zod | Runtime schema validation |
 
-* **Node.js**: Version 18.x or later.  
-* **npm**: Comes with Node.js.  
-* **Git**: For cloning the repository. 
-* **Accounts & API Keys**:
-  - ✅ [Kinde Auth](https://kinde.com/) account and application setup (client ID, secret,redirect URIs etc)
-  - ✅ [UploadThing](https://uploadthing.com/) project with API keys
-  - ✅ [Stripe](https://dashboard.stripe.com/) account with secret key and webhook secret 
-* **For Option 1 (With Docker Compose):**  
-  * **Docker Desktop**: Download from [Docker's official website](https://www.docker.com/products/docker-desktop/).
 
-### **Option 1: With Docker Compose (Recommended)**
 
-This sets up a consistent development environment, including a local PostgreSQL database.
+## Environment Variables
 
-1. **Clone the repository:**  
-   ``` bash
-   git clone https://github.com/your-username/classycase.git # Replace with your actual repo URL  
-   cd classycase
+Create a `.env` file in the project root based on `.env.example`:
+
+| Variable | Description |
+| : | : |
+| `NEXT_PUBLIC_SERVER_URL` | Application base URL (e.g., `http://localhost:3000`) |
+| `DATABASE_URL` | PostgreSQL connection string (Neon, Supabase, or local) |
+| `KINDE_CLIENT_ID` | Kinde application client identifier |
+| `KINDE_CLIENT_SECRET` | Kinde application client secret |
+| `KINDE_ISSUER_URL` | Kinde authentication domain URL |
+| `KINDE_SITE_URL` | Application site URL |
+| `KINDE_POST_LOGOUT_REDIRECT_URL` | Redirect destination after logout |
+| `KINDE_POST_LOGIN_REDIRECT_URL` | Redirect destination after login (`/auth-callback`) |
+| `NEXT_PUBLIC_ADMIN_EMAIL` | Administrator email address for dashboard access |
+| `UPLOADTHING_TOKEN` | API token for UploadThing file service |
+| `STRIPE_SECRET_KEY` | Stripe secret API key |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
+| `EMAIL_PASSWORD` | App-specific password for transactional email SMTP |
+
+
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18.x or later
+- npm or yarn
+- PostgreSQL database instance (local or hosted, e.g., Neon)
+
+### Option 1: Local Development
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Abheeshta-P/ClassyCase.git
+   cd ClassyCase
    ```
 
-2. **Create your local environment file:**  
-   ``` bash
-   cp .env.example .env
-   ```
-
-   **Open the new .env file** and fill in required values (API keys, secrets for Kinde, UploadThing, Stripe, etc.). DATABASE\_URL for the local PostgreSQL is automatically set in docker-compose.yml.  
-3. **Start the Docker Compose services:** 
-   ``` bash 
-   docker-compose up --build
-    ```
-   * \--build forces image rebuild (first time/Dockerfile changes). Use docker-compose up \-d for detached mode.  
-4. **Run Prisma Migrations:** 
-   Once the Docker services are running and your database container is up, you need to apply your database schema migrations to create the necessary tables.  
-   ``` bash
-   docker-compose exec nextjs npx prisma migrate dev --name init
-   ```
-   This command runs npx prisma migrate dev \--name init *inside* the nextjs container, ensuring it uses the correct database connection defined in docker-compose.yml to create your schema.  
-5. **Access your application:** 
-    ``` bash
-    http://localhost:3000  
-    ```
-6. **Stopping services:** 
-   ``` bash 
-   docker-compose down # Stops containers, keeps DB data  
-   docker-compose down --volumes # Stops containers, removes DB data
-   ```
-
-### **Option 2: Without Docker (Traditional npm run dev)**
-
-This option requires manual management of Node.js, PostgreSQL, and other dependencies on your local machine.
-
-1. **Clone the repository:**  
-    ``` bash
-    git clone https://github.com/your-username/classycase.git # Replace with your actual repo URL  
-    cd classycase
-    ```
-
-2. **Install Node.js dependencies:** 
-   ``` bash 
+2. **Install dependencies:**
+   ```bash
    npm install
    ```
 
-3. **Database Setup:**  
-   * **Using a Hosted Service (e.g., Neon, Supabase, PlanetScale):**  
-     * Sign up for a database service and obtain your connection string.  
-   * **Using a Local PostgreSQL (Manually):**  
-     * Install PostgreSQL on your machine.  
-     * Create a database and a user with permissions.  
-     * Ensure your PostgreSQL server is running.  
-4. **Create your local environment file:**  
-   ``` bash
+3. **Configure environment variables:**
+   ```bash
    cp .env.example .env
    ```
+   Fill in the required credentials in `.env`.
 
-   **Open the new .env file** and fill in all required values, including your DATABASE\_URL (from your hosted service or local PostgreSQL).  
-5. **Run Prisma migrations:**  
-   You need to apply your database schema migrations to create the necessary tables.  
-   ``` bash
-   npx prisma migrate dev --name init
+4. **Run database migrations:**
+   ```bash
+   npx prisma migrate dev
    ```
 
-6. **Start the development server:**  
+5. **Start the development server:**
    ```bash
    npm run dev
    ```
+   Open `http://localhost:3000` in your browser.
 
-7. **Access your application:** 
-    ``` bash
-    http://localhost:3000  
-    ```
 
-## 📷 Screenshots
 
-### 🚀 Landing Page  
+### Option 2: Docker Compose
+
+1. **Start the application and database containers:**
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Apply migrations inside the container:**
+   ```bash
+   docker-compose exec nextjs npx prisma migrate dev
+   ```
+
+3. **Stop containers:**
+   ```bash
+   docker-compose down
+   ```
+
+
+
+## Database Management
+
+- **Apply schema changes in development:**
+  ```bash
+  npx prisma migrate dev --name <migration_name>
+  ```
+- **Apply pending migrations in production:**
+  ```bash
+  npx prisma migrate deploy
+  ```
+- **Regenerate Prisma Client:**
+  ```bash
+  npx prisma generate
+  ```
+- **Inspect database with Prisma Studio:**
+  ```bash
+  npx prisma studio
+  ```
+
+
+
+## Production Deployment
+
+When deploying to platforms such as Vercel or Railway:
+
+1. Configure all required environment variables in your hosting dashboard.
+2. The build script automatically executes migration deployment before compiling the application:
+   ```json
+   "build": "prisma migrate deploy && next build"
+   ```
+3. Set your Stripe webhook endpoint to:
+   ```
+   https://your-domain.com/api/webhooks
+   ```
+   Configure the webhook to listen for the `checkout.session.completed` event.
+
+
+
+## Application Previews
+
+### Landing Page
 ![Landing Page](https://github.com/user-attachments/assets/9544ad92-1082-4a64-b213-d9edad6378b4)
 
-### 🖼️ Upload Image 
-![Upload mage Page](https://github.com/user-attachments/assets/6225ed0c-f3ec-4ec1-8839-94154fa666d2)
+### Artwork Upload
+![Upload Image Page](https://github.com/user-attachments/assets/6225ed0c-f3ec-4ec1-8839-94154fa666d2)
 
-### 🎨 Preview of Case Configuration
+### Configuration Preview
 ![Configuration Preview](https://github.com/user-attachments/assets/8bb914e0-6d4e-435f-bb39-9fcdd1458bcf)
 
-### 🛠️ Admin Dashboard  
+### Admin Dashboard
 ![Admin Dashboard](https://github.com/user-attachments/assets/77e8a6cb-0454-4c11-9097-973055a9a72a)
 
-### ✅ Thank You Page  
-![Thankyou](https://github.com/user-attachments/assets/00118fc1-2cde-49b8-90d5-a823fe47a045)
+### Order Confirmation
+![Thank You Page](https://github.com/user-attachments/assets/00118fc1-2cde-49b8-90d5-a823fe47a045)
 
 
 
-## 📜 License
 
-All rights reserved ©ClassyCase - Abheeshta P
-This project is not open-source and should not be reused or redistributed without explicit permission.
 
+> All rights reserved &copy; ClassyCase - Abheeshta P.  

@@ -145,7 +145,7 @@ export default function NavbarContent() {
                 variant: "ghost",
               })}
             >
-              Dashboard ✨
+              Dashboard
             </Link>
           )}
 
