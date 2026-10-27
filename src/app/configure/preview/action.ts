@@ -45,6 +45,21 @@ export async function createCheckoutSession(rawInput: {
     throw new Error("You need to be logged in");
   }
 
+  // Verify configuration ownership if already claimed
+  if (configuration.userId && configuration.userId !== user.id) {
+    throw new Error(
+      "You do not have permission to checkout with this configuration"
+    );
+  }
+
+  // Claim unowned guest configuration for this customer upon checkout
+  if (!configuration.userId) {
+    await db.configuration.update({
+      where: { id: configId },
+      data: { userId: user.id },
+    });
+  }
+
   const { finish, material } = configuration;
 
   // Calculate pricing strictly on server from trusted price constants
@@ -106,15 +121,10 @@ export async function createCheckoutSession(rawInput: {
       allowed_countries: ["DE", "US", "IN", "SN"],
     },
     billing_address_collection: "auto",
-
-    // When webhook from stripe got info about successful checkout/pay,
-    // To know which user and which order it is related to
     metadata: {
       userId: user.id,
       orderId: order.id,
     },
-
-    // Product which user buyed
     line_items: [{ price: product.default_price as string, quantity: 1 }],
   });
 

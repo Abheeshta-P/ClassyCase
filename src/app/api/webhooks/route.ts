@@ -52,9 +52,10 @@ export async function POST(req: Request) {
         throw new Error("Invalid request metadata");
       }
 
-      // 1. Verify order existence and ownership
+      // 1. Verify order existence, order ownership, and configuration ownership
       const existingOrder = await db.order.findUnique({
         where: { id: orderId },
+        include: { configuration: true },
       });
 
       if (!existingOrder) {
@@ -63,6 +64,14 @@ export async function POST(req: Request) {
 
       if (existingOrder.userId !== userId) {
         throw new Error("User ID mismatch for order");
+      }
+
+      // Verify configuration belongs to this customer if already claimed
+      if (
+        existingOrder.configuration.userId &&
+        existingOrder.configuration.userId !== userId
+      ) {
+        throw new Error("User ID mismatch for configuration");
       }
 
       // 2. Event Idempotency & Duplicate-Email Prevention:
@@ -121,6 +130,14 @@ export async function POST(req: Request) {
         },
       });
 
+      // Claim unowned guest configuration for this customer upon completed payment
+      if (!existingOrder.configuration.userId) {
+        await db.configuration.update({
+          where: { id: existingOrder.configurationId },
+          data: { userId },
+        });
+      }
+
       const customerEmail = event.data.object.customer_details?.email;
       if (customerEmail) {
         try {
@@ -169,7 +186,6 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Stripe Webhook Error:", error);
 
-    // Return 500 status and error details for Stripe to see
     return new Response(
       JSON.stringify({
         message: "Webhook processing failed",
